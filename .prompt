@@ -1,0 +1,95 @@
+export PS1='[\u@\h \t\n\w]\$ '
+if [ "$TERM" = "xterm-256color" ] || [ "$TERM" = "xterm-color" ] ;
+then
+    #we're on a non-linux system
+    hostn=$(hostname -s)
+    usern=$(whoami)
+
+    black="\e[0;30m"
+    lgray="\e[2;30m"
+    dgray="\e[1;30m"
+    red="\e[0;31m"
+    lred="\e[2;31m"
+    green="\e[0;31m"
+    lgreen="\e[2;32m"
+    dgreen="\e[1;32m"
+    yellow="\e[0;33m"
+    lyellow="\e[2;33m"
+    blue="\e[0;34m"
+    dblue="\e[1;34m"
+    lblue="\e[2;34m"
+    magenta="\e[0;35m"
+    dmagenta="\e[1;35m"
+    lmagenta="\e[2;35m"
+    cyan="\e[0;36m"
+    dcyan="\e[1;36m"
+    lcyan="\e[2;36m"
+    white="\e[0;37m"
+    uwhite="\e[4;37m"
+    ublack="\e[4;30m"
+    bright_green="\e[38;5;118m"
+
+    userc="\[${green}\]"
+    timec="\[${yellow}\]"
+    typec="\[${magenta}\]"
+    #dirc="\[\e${lcyan}\]"
+    dirc="\[\e${bright_green}\]"
+    borderc="\[\e${cyan}\]"
+    dashc="\[\e${dgray}\]"
+    nc="\[\e${white}\]"
+
+    #o -e "\\033[48;5;235;38;5;118mhello world\\033[0m"c="\[\e[0m\]"
+
+    function prompt {
+        # If previous command didn't return an error, display a green checkmark
+        #  otherwize display a red x
+        prev=`if [ $? = 0 ]; then echo "\[\e[32m\]✔"; else echo "\[\e[31m\]✕"; fi`
+
+        # Date and time in military format
+        ctime=$(date +'%a %D %k:%M:%S.%N')
+        prmpt="|${usern}@${hostn} <${PWD}>${ctime}|"
+        cols=$(tput cols)
+        git_branch="" #$(__git_ps1)
+        let FILLS=${cols}-${#prmpt}
+        let FILLS=`if [ "$FILLS" -le "1" ]; then echo 1; else echo "$FILLS"; fi`
+        LINE=$(echo "                                                                                                                                   "| cut -c1-$FILLS)
+        #for (( f=0; f<$FILLS; f++ ))
+        #    do
+        #        LINE=$LINE" "
+        #    done
+
+        # cut doesn't handle utf8 bytes so create horizontal lines using string manipulation for now
+        TOP_LINE="╭"
+        BOTTOM_LINE="╰"
+        FILLS=${cols}-2
+        for (( g=0; g<$FILLS; g++ ))
+            do
+                TOP_LINE=$TOP_LINE"─"
+                BOTTOM_LINE=$BOTTOM_LINE"─"
+            done
+        TOP_LINE=$TOP_LINE"╮"
+        BOTTOM_LINE=$BOTTOM_LINE"╯"
+
+        PST="\n$borderc${BOTTOM_LINE}\n${TOP_LINE}\n│${userc}${usern}@$userc${hostn} $dirc<${PWD}>$dashc${LINE}$timec${ctime}$borderc│\n"
+        PST=$PST"$prev${git_branch}<\!>$nc "
+
+        # Append some text for xterm's title without ASCII excape codes for Putty
+        #PS1=$PST`echo -ne "\033]0;"`${usern}@${hostn}`echo -ne "\007"`
+        #PS1=$PST'\[\e]0;$usern@${hostn}-${PWD}\a\]'
+        PS1=$PST
+    } 
+
+    PROMPT_COMMAND=prompt
+
+    #we're not on the console, assume an xterm
+    #newline, green color, username@host:path, newline, hist buffer pos, '>', space, color restore
+    #export PS1= PS1="\n\e[32;40m\t \u@\H:\w\n\!> \e[0m"
+
+    ilabel () { /bin/echo " ]1;$*
+"; }
+    label ()  { /bin/echo " ]2;$*
+"; }
+    eval ilabel "$HOSTNAME"
+fi
+
+

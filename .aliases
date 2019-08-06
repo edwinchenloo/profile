@@ -1,0 +1,95 @@
+
+# User specific aliases and functions
+alias a=alias
+bq() { tar cvfz ise/$1.`date +%m%d`.tgz $1/*.cpp $1/*.h $1/*.pr* $1/ng/*.cpp $1/ng/*.h $1/ng/*.pr* $1/ise/*.h $1/ise/*.cpp $1/ise/*.pr* --exclude moc*.cpp; } 
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias bd=". bd -si"
+alias cdxr="cd xr-snap/src/xr/snap"
+alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
+alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
+alias clonesnap="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git"
+alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
+alias du='du -kh'    # Makes a more readable output.
+alias df='df -kTh'
+alias fhcp=' echo \'\''welcome2xr\!\'\''|sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh/src/fh /usr/local/xr/bin/fh.edwin'
+alias fhsync='rsync -avzh --include="*/" --include="*.cpp" --include="*.hpp" --exclude="*" edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh /home/edwin.chen/linux'
+alias gc="git commit -a -m"
+alias gd="git diff --ignore-space-at-eol -b -w --ignore-blank-lines"
+alias gdb='~/bin/gdb --data-directory=~/bin/data-directory '
+alias gdbtss='cd ~/linux/tss.maystreet;gdb -c /opt/cores/core* TimeSalesServer'
+alias gitroot='cd $(git rev-parse --show-toplevel)'
+alias gpp='git pull && git push'
+alias hg='history|grep $1'
+alias h='history'
+alias initsnap="ln -s `pwd`/buildtools/pre-commit -t .git/hooks"
+alias j='jobs -l'
+alias lessf='/usr/bin/less +F '
+alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
+alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
+alias ls='/bin/ls --color=auto '
+alias make=~/bin/pretty_make.py
+alias m='make -j 16'
+alias m8='make -j 8'
+alias m16='make -j 16'
+alias m24='make -j 24'
+alias ogrelogs='ll /var/log/ogre/*/ogre*'
+alias optbinrel='cd /home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress'
+alias optbindeb='cd /home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress'
+alias optcpdeb='sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress/optaggress   /home/snaptrader/optaggress.edwin'
+alias optcprel='sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /home/snaptrader/optaggress.edwin'
+alias optsrc='cd /home/edwin.chen/linux/snap/xr-snap/src/xr/snap/apps/optaggress'
+alias optsync='rsync -avzh --include="*/" --include="*.cpp" --include="*.hpp" --exclude="*" edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap /home/edwin.chen/linux'
+alias path='echo -e ${PATH//:/\\n}'
+#alias pmake="python -m xrmake -j `distcc -j`"
+alias pmake="python -m xrmake -j 20"
+alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
+alias pr='sudo perf -F 99 -ag sleep 20 -p'
+alias psg='ps -edf|grep -i'
+alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
+alias rgrep="grep --recursive --include='*.cpp' --include='*.h' --include='*.hpp' -nIi "
+alias rmbin='find -name '\''*.bin'\'' -print0 |xargs -0 rm -f'
+alias rmcores='rm -f /opt/cores/*core*'
+alias ras='sudo -u AuctionServer /etc/init.d/AuctionServer restart;sleep 1;ll -tr /opt/AuctionServer/log/current/A*.txt'
+alias rogre='sudo -u sysadmin /opt/ogre/scripts/ogre-dev.sh;sleep 1;ll -tr /var/log/ogre/dev/ogre*.txt'
+alias rsim='sudo -u ExchangeSim /etc/init.d/ExchangeSim restart;sleep 1;ll -tr /opt/ExchangeSim/log/current/e*'
+alias scpo="sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /usr/local/xr/bin"
+alias setupsor='source /opt/smds/env.sh;source /opt/sor/env.sh;cd /opt/sor'
+#alias syn='synergyc -1 --no-camp edwin-laptop'
+alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
+alias sysadmin='sudo su -l sysadmin'
+alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cjvf $1.tbz $1'
+alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
+alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
+alias tree='tree -Csuh'
+alias u='~/bin/uncrustify --no-backup -c ~/utils/uncrustify.cfg -l cpp '
+alias updatealiases='scp edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
+alias xrmake='python -m xrmake'
+
+# Aliases are available on non interactive shells
+shopt -s expand_aliases
+
+if [ "$OS" = "Windows_NT" ]
+then
+    alias ll='ls -l -tr --color=always --full-time'
+    alias llt='ls -l -tr --color=always --full-time'
+    #export TERM=xterm
+elif [ -e /lib/terminfo/x/xterm-256color ] ||
+     [ -e /usr/share/terminfo/x/xterm-256color ]
+then
+    eval `dircolors ~/.dir_colors`
+
+    alias grep='/bin/grep --color=tty '
+    alias ll='ls -l -tr --full-time'
+    alias llt='ls -l -tr --full-time'
+
+    export TERM='xterm-256color'
+else
+    alias ll='ls -l -tr --full-time'
+
+    #export TERM='xterm-color'
+    #export PS1="\[\e[36;1m\]\u@\h \d \t\n\w {\!}\[\e[0m\] "
+fi
+
