@@ -48,6 +48,7 @@ alias pmake="python -m xrmake -j 20"
 alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
+alias qs='./quickstart.sh && source setupEnv.sh'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rgrep="grep --recursive --include='*.cpp' --include='*.h' --include='*.hpp' -nIi "
 alias rmbin='find -name '\''*.bin'\'' -print0 |xargs -0 rm -f'

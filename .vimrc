@@ -81,7 +81,8 @@ let g:asyncrun_open = 20
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F7> :wa\|AsyncRun -raw python -m xrmake -j 23 -d <cr>
+"nnoremap <silent> <F7> :wa\|AsyncRun -raw python -m xrmake -j 23 -d <cr>
+nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
 
 " dos2unix
 nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
