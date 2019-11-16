@@ -65,7 +65,13 @@ pskill()
 
 gclone()
 {
-    git clone git@devtools:id/"$1".git
+    #git clone git@devtools:id/"$1".git
+    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/"$1".git
+}
+
+clonesnap() 
+{
+    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git "$1" && git checkout -b "$1"
 }
 
 #LS_COLORS base

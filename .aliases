@@ -10,7 +10,6 @@ alias bd=". bd -si"
 alias cdxr="cd xr-snap/src/xr/snap"
 alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
 alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
-alias clonesnap="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git"
 alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
 alias du='du -kh'    # Makes a more readable output.
 alias df='df -kTh'
@@ -18,7 +17,7 @@ alias fhcp=' echo \'\''welcome2xr\!\'\''|sudo scp edwin.chen@chi-ldbd239:/home/e
 alias fhsync='rsync -avzh --include="*/" --include="*.cpp" --include="*.hpp" --exclude="*" edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh /home/edwin.chen/linux'
 alias gc="git commit -a -m"
 alias gd="git diff --ignore-space-at-eol -b -w --ignore-blank-lines"
-alias gdb='~/bin/gdb --data-directory=~/bin/data-directory '
+#alias gdb='~/bin/gdb --data-directory=~/bin/data-directory '
 alias gdbtss='cd ~/linux/tss.maystreet;gdb -c /opt/cores/core* TimeSalesServer'
 alias gitroot='cd $(git rev-parse --show-toplevel)'
 alias gpp='git pull && git push'
