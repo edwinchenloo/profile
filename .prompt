@@ -34,7 +34,7 @@ then
     typec="\[${magenta}\]"
     #dirc="\[\e${lcyan}\]"
     dirc="\[\e${bright_green}\]"
-    borderc="\[\e${cyan}\]"
+    if [ -x $SINGULARITY_CONTAINER ]; then borderc="\[\e${cyan}\]"; else borderc="\[\e${yellow}\]"; fi
     dashc="\[\e${dgray}\]"
     nc="\[\e${white}\]"
 

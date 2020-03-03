@@ -37,11 +37,11 @@ set laststatus=2
 "set list                      " show invisible characters
 "set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
 set matchtime=5               " blink matching chars for this number of seconds
-set mouse=r                   " enble mouse support in console
 set noerrorbells
 set nohidden                  " remove the buffer after closing it
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
+set path+=/lhome/RX-2208/ext/monorepo/cpp/libs,path+=/lhome/RX-2208/ext/monorepo/cpp/libs/protocol,/lhome/RX-2208/xr-snap/src/xr/snap
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
@@ -62,8 +62,14 @@ set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
 
+if has('mouse')
+  set mouse=r                   " enble mouse support in console
+endif
+
 "Number of line of output window (e.g. when invoking make)
 let g:asyncrun_open = 20
+
+"map <C-o> :NERDTreeToggle<CR>
 
 "function! Browser ()
 "   let line = getline (".")
@@ -81,7 +87,9 @@ let g:asyncrun_open = 20
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F7> :wa\|AsyncRun -raw python -m xrmake -j 23 -d <cr>
+"nnoremap <silent> <F7> :wa\|AsyncRun -raw python -m xrmake -d <cr>
+nnoremap <silent> <F7> :wa\|AsyncRun -mode=term -pos=bottom python -m xrmake -d <cr>
+"nnoremap <silent> <F7> :wa\|AsyncRun -raw make -j 8 <cr>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw  python -u -m xrbuild -rv debug <cr>
 "nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
 
@@ -94,10 +102,18 @@ cmap w!! w !sudo tee '%' > /dev/null
 "type :PlugUpdate to update them
 call plug#begin('~/.vim/plugged')
 
+Plug 'neoclide/coc.nvim', {'branch':'release'}
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'airblade/vim-gitgutter'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'ryanoasis/vim-devicons'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'scrooloose/nerdcommenter'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
-Plug 'lyuts/vim-rtags'
+"Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
+"Plug 'lyuts/vim-rtags'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 
