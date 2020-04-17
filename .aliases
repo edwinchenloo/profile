@@ -8,6 +8,7 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias bd=". bd -si"
 alias cdxr="cd xr-snap/src/xr/snap"
+alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
 alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
 alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
 alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
@@ -29,13 +30,13 @@ alias lessf='/usr/bin/less +F '
 alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias ls='/bin/ls --color=auto '
-alias make=~/bin/pretty_make.py
+#alias make=~/bin/pretty_make.py
 alias m='make -j 16'
 alias m8='make -j 8'
 alias m16='make -j 16'
 alias m24='make -j 24'
 alias monorepo='gitroot && cd ext/monorepo/cpp/libs'
-alias ogrelogs='ll /var/log/ogre/*/ogre*'
+alias ogrelogs='ll -ltrd /opt/xr/logs/ogre/*'
 alias optbinrel='cd /home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress'
 alias optbindeb='cd /home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress'
 alias optcpdeb='sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress/optaggress   /home/snaptrader/optaggress.edwin'
@@ -48,6 +49,7 @@ alias pmake="python -m xrmake -j 20"
 alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
+alias qm='use x3p_b-1.2-dev && unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source /lhome/HO-2063/ext/monorepo/.monorepo_profile'
 alias qs='./quickstart.sh && source setupEnv.sh'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rgrep="grep --recursive --include='*.cpp' --include='*.h' --include='*.hpp' -nIi "
@@ -60,9 +62,9 @@ alias scpo="sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/rele
 alias setupsor='source /opt/smds/env.sh;source /opt/sor/env.sh;cd /opt/sor'
 #alias syn='synergyc -1 --no-camp edwin-laptop'
 alias sm='source .monorepo_profile'
+alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";cdxr;cd apps/commandcontrol/options'
 alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
 alias sysadmin='sudo su -l sysadmin'
-alias ss='source setupEnv.sh'
 alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cjvf $1.tbz $1'
 alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
 alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
