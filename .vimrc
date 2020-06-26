@@ -13,10 +13,14 @@ filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
 filetype plugin on            " Enable filetype-specific plugins
 "set background=dark
-"set ruler                     " show the line number on hte bar
+"set ruler                     " show the line number on the bar
+
+" Save file after editing
+autocmd InsertLeave * write
+autocmd BufWritePre * %s/\s\+$//e
 
 
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE 
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
 
 set autoread                   " watch for file changes
@@ -41,7 +45,10 @@ set noerrorbells
 set nohidden                  " remove the buffer after closing it
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
-set path+=/lhome/HO-2063/ext/monorepo/cpp/libs,path+=/lhome/HO-2063/ext/monorepo/cpp/libs/protocol,/lhome/HO-2063/xr-snap/src/xr/snap
+set path+=/lhome/master/ext
+set path+=/lhome/master/ext/monorepo/cpp/libs
+set path+=/lhome/master/ext/monorepo/cpp/libs/protocol
+set path+=/lhome/master/xr-snap/src/xr/snap
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
@@ -90,8 +97,9 @@ let g:asyncrun_open = 20
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F7> :wa\|AsyncRun -raw -pos=bottom python -m xrmake -d <cr>
-"nnoremap <silent> <F7> :wa\|AsyncRun -raw make -j 8 <cr>
+nnoremap <silent> <F5> :wa\|AsyncRun -raw make -j 8 <cr>
+nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
+nnoremap <silent> <F7> :AsyncRun! -term -save=2 -pos=bottom python -m xrmake -d <cr>
 nnoremap <silent> <F8> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -u -m xrbuild -rv debug <cr>
 "nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
 

@@ -28,15 +28,15 @@ then
     uwhite="\e[4;37m"
     ublack="\e[4;30m"
     bright_green="\e[38;5;118m"
+    reset="\e[0m"
 
-    userc="\[${green}\]"
-    timec="\[${yellow}\]"
-    typec="\[${magenta}\]"
-    #dirc="\[\e${lcyan}\]"
-    dirc="\[\e${bright_green}\]"
-    if [ -x $SINGULARITY_CONTAINER ]; then borderc="\[\e${cyan}\]"; else borderc="\[\e${yellow}\]"; fi
-    dashc="\[\e${dgray}\]"
-    nc="\[\e${white}\]"
+    userc=${green}
+    timec=${yellow}
+    typec=${magenta}
+    dirc=${bright_green}
+    if [ -x $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
+    dashc=${dgray}
+    nc=${white}
 
     #o -e "\\033[48;5;235;38;5;118mhello world\\033[0m"c="\[\e[0m\]"
 
@@ -77,7 +77,7 @@ then
         #PS1=$PST`echo -ne "\033]0;"`${usern}@${hostn}`echo -ne "\007"`
         #PS1=$PST'\[\e]0;$usern@${hostn}-${PWD}\a\]'
         PS1=$PST
-    } 
+    }
 
     PROMPT_COMMAND=prompt
 
