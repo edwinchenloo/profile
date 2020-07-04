@@ -49,6 +49,7 @@ set path+=/lhome/master/ext
 set path+=/lhome/master/ext/monorepo/cpp/libs
 set path+=/lhome/master/ext/monorepo/cpp/libs/protocol
 set path+=/lhome/master/xr-snap/src/xr/snap
+set path+=/lhome/trader-repo
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
@@ -98,7 +99,8 @@ let g:asyncrun_open = 20
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
 nnoremap <silent> <F5> :wa\|AsyncRun -raw make -j 8 <cr>
-nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
+"nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
+nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m maketraderunit --rocket -j 1 -d -v <cr>
 nnoremap <silent> <F7> :AsyncRun! -term -save=2 -pos=bottom python -m xrmake -d <cr>
 nnoremap <silent> <F8> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -u -m xrbuild -rv debug <cr>
 "nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
