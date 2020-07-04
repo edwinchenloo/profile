@@ -13,10 +13,14 @@ filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
 filetype plugin on            " Enable filetype-specific plugins
 "set background=dark
-"set ruler                     " show the line number on hte bar
+"set ruler                     " show the line number on the bar
+
+" Save file after editing
+autocmd InsertLeave * write
+autocmd BufWritePre * %s/\s\+$//e
 
 
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE 
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
 
 set autoread                   " watch for file changes
@@ -37,11 +41,14 @@ set laststatus=2
 "set list                      " show invisible characters
 "set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
 set matchtime=5               " blink matching chars for this number of seconds
-set mouse=r                   " enble mouse support in console
 set noerrorbells
 set nohidden                  " remove the buffer after closing it
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
+set path+=/lhome/master/ext
+set path+=/lhome/master/ext/monorepo/cpp/libs
+set path+=/lhome/master/ext/monorepo/cpp/libs/protocol
+set path+=/lhome/master/xr-snap/src/xr/snap
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
@@ -62,8 +69,14 @@ set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
 
+if has('mouse')
+  set mouse=r                   " enble mouse support in console
+endif
+
 "Number of line of output window (e.g. when invoking make)
 let g:asyncrun_open = 20
+
+"map <C-o> :NERDTreeToggle<CR>
 
 "function! Browser ()
 "   let line = getline (".")
@@ -78,11 +91,17 @@ let g:asyncrun_open = 20
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
 
+"let PYTHONNUNBUFFERRED=1
+"let g:asyncrun_encs = 'utf-8'
+
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-"nnoremap <silent> <F7> :wa\|AsyncRun -raw python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
+nnoremap <silent> <F5> :wa\|AsyncRun -raw make -j 8 <cr>
+nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
+nnoremap <silent> <F7> :AsyncRun! -term -save=2 -pos=bottom python -m xrmake -d <cr>
+nnoremap <silent> <F8> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -u -m xrbuild -rv debug <cr>
+"nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
 
 " dos2unix
 nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
@@ -93,11 +112,22 @@ cmap w!! w !sudo tee '%' > /dev/null
 "type :PlugUpdate to update them
 call plug#begin('~/.vim/plugged')
 
+"Plug 'octol/vim-cpp-enhanced-highlight'
+"Plug 'neoclide/coc.nvim', {'branch':'release'}
+"Plug 'neoclide/coc.nvim', {'branch':'release'}
+"Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+"Plug 'airblade/vim-gitgutter'
+"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'ryanoasis/vim-devicons'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'scrooloose/nerdcommenter'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
-Plug 'lyuts/vim-rtags'
+"Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
+"Plug 'lyuts/vim-rtags'
 Plug 'skywind3000/asyncrun.vim'
+Plug 'jszakmeister/vim-togglecursor'
 
 call plug#end()
 

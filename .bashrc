@@ -39,9 +39,10 @@ fi
 source ~/.prompt
 
 #export CDPATH='.:~:/net/chihq-share-01/home_dirs/edwin.chen/linux'
+export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
-export ONE_TICK_CONFIG=/opt/omd/client_data/config/one_tick_config.txt
+export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
 export PATH=".:~/bin:~/linux/depot_tools:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
@@ -65,7 +66,26 @@ pskill()
 
 gclone()
 {
-    git clone git@devtools:id/"$1".git
+    #git clone git@devtools:id/"$1".git
+    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/"$1".git
+}
+
+clonesnap() 
+{
+    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git "$1"
+    cd "$1"
+    /bin/ls
+    git checkout -b "$1"
+    git status
+}
+
+mergemaster()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    git checkout master
+    git pull --rebase
+    git checkout $BRANCH
+    git merge -m 'merge with master' master
 }
 
 #LS_COLORS base
@@ -259,6 +279,12 @@ function ii()   # Get current host related info.
     echo
 }
 
+function l()
+{
+  exa -alhmF --git --group-directories-first  --color-scale $1
+  p=`realpath ${1:-.}`
+  echo -e "`realpath $p/..`/\e$BBlue`basename $p`\e$Color_Off"
+}
 
 # Enable options:
 shopt -s cdspell
