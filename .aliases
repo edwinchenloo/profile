@@ -10,7 +10,7 @@ alias bd=". bd -si"
 alias cdxr="cd xr-snap/src/xr/snap"
 alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
 alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
-alias clonesnap="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git"
+alias clonesnap="git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git"
 alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
 alias du='du -kh'    # Makes a more readable output.
 alias df='df -kTh'
@@ -30,7 +30,6 @@ alias lessf='/usr/bin/less +F '
 alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias ls='/bin/ls --color=auto '
-alias make=~/bin/pretty_make.py
 alias m='make -j 16'
 alias m8='make -j 8'
 alias m16='make -j 16'
@@ -67,6 +66,7 @@ alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
 alias tree='tree -Csuh'
 alias u='~/bin/uncrustify --no-backup -c ~/utils/uncrustify.cfg -l cpp '
 alias updatealiases='scp edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
+alias vi='vim'
 alias xrmake='python -m xrmake'
 
 # Aliases are available on non interactive shells
