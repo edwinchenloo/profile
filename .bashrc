@@ -16,7 +16,7 @@ fi
 
 if [ -f /mnt/local/opt/qt55/bin/qt55-env.sh ]; then
     source /mnt/local/opt/qt55/bin/qt55-env.sh
-fi 
+fi
 
 if [ -f /opt/qt55/bin/qt55-env.sh ]; then
     source /opt/qt55/bin/qt55-env.sh
@@ -43,7 +43,7 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:$PATH"
+export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
@@ -64,15 +64,9 @@ pskill()
         echo "slaughtered."
 }
 
-gclone()
+clonesnap()
 {
-    #git clone git@devtools:id/"$1".git
-    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/"$1".git
-}
-
-clonesnap() 
-{
-    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git "$1"
+    git clone ssh://git@10.10.103.239:7999/snap/snap.git "$1"
     cd "$1"
     /bin/ls
     git checkout -b "$1"

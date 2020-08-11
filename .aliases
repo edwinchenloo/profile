@@ -11,8 +11,10 @@ alias cdxr="cd xr-snap/src/xr/snap"
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
 alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
 alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
-alias clonesnap="git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git"
+#alias clonesnap="git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git"
 alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
+alias cmaked='cmake -DCMAKE_BUILD_TYPE=DEBUG ..'
+alias cmaker='cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO ..'
 alias du='du -kh'    # Makes a more readable output.
 alias df='df -kTh'
 alias fhcp=' echo \'\''welcome2xr\!\'\''|sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh/src/fh /usr/local/xr/bin/fh.edwin'
