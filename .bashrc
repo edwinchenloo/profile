@@ -47,7 +47,7 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:$PATH"
+export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
@@ -66,12 +66,6 @@ pskill()
         /bin/kill -s SIGTERM $pid
         /bin/kill -s SIGKILL $pid
         echo "slaughtered."
-}
-
-gclone()
-{
-    #git clone git@devtools:id/"$1".git
-    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/"$1".git
 }
 
 clonesnap()

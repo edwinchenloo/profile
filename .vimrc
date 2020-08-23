@@ -106,11 +106,9 @@ nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
 nnoremap <silent> <F5> :wa\|AsyncRun make -j 8 <cr>
-"nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
 nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m maketraderunit --rocket -j 1 -d -v <cr>
 nnoremap <silent> <F7> :AsyncRun! -term -save=2 -pos=bottom python -m xrmake -d <cr>
 nnoremap <silent> <F8> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -u -m xrbuild -rv debug <cr>
-"nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
 
 " dos2unix
 nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
