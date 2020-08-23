@@ -8,6 +8,9 @@
 "  set fileencodings=ucs-bom,utf-8,latin1
 "endif
 
+if has("autocmd")
+   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
 
 filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
@@ -62,6 +65,7 @@ set softtabstop=4             " set virtual tab stop
 set t_Co=256
 set t_vb=                     " visual bell
 set tabstop=4
+set termguicolors
 set ttyfast                   " we have a fast terminal
 set undolevels=1000
 set updatecount=100           " switch every 100 chars
@@ -69,6 +73,9 @@ set visualbell
 set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
+
+syntax on
+colorscheme archman
 
 if has('mouse')
   set mouse=r                   " enble mouse support in console
@@ -87,7 +94,7 @@ let g:asyncrun_open = 20
 
 " Switch between header and cpp file using Alt-o
 "execute "set <M-o>=o"
-"nnoremap <silent> <M-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
@@ -98,7 +105,7 @@ let g:asyncrun_open = 20
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F5> :wa\|AsyncRun -raw make -j 8 <cr>
+nnoremap <silent> <F5> :wa\|AsyncRun make -j 8 <cr>
 "nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
 nnoremap <silent> <F6> :wa\|AsyncRun  -raw -mode=term -pos=bottom python -m maketraderunit --rocket -j 1 -d -v <cr>
 nnoremap <silent> <F7> :AsyncRun! -term -save=2 -pos=bottom python -m xrmake -d <cr>
@@ -130,6 +137,7 @@ Plug 'vim-airline/vim-airline-themes'
 "Plug 'lyuts/vim-rtags'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
+Plug 'sheerun/vim-polyglot'
 
 call plug#end()
 

@@ -16,7 +16,7 @@ fi
 
 if [ -f /mnt/local/opt/qt55/bin/qt55-env.sh ]; then
     source /mnt/local/opt/qt55/bin/qt55-env.sh
-fi 
+fi
 
 if [ -f /opt/qt55/bin/qt55-env.sh ]; then
     source /opt/qt55/bin/qt55-env.sh
@@ -39,6 +39,10 @@ fi
 source ~/.prompt
 
 #export CDPATH='.:~:/net/chihq-share-01/home_dirs/edwin.chen/linux'
+export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
+export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
+export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
+export APCA_API_DATA_URL="https://data.alpaca.markets"
 export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
@@ -51,7 +55,7 @@ export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_2018
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
-export LESS='-R'
+export LESS='-R -Q'
 
 pskill()
 {
@@ -70,9 +74,9 @@ gclone()
     git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/"$1".git
 }
 
-clonesnap() 
+clonesnap()
 {
-    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/snap/snap.git "$1"
+    git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git "$1"
     cd "$1"
     /bin/ls
     git checkout -b "$1"
