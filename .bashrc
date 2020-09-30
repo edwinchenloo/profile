@@ -38,7 +38,7 @@ fi
 
 source ~/.prompt
 
-#export CDPATH='.:~:/net/chihq-share-01/home_dirs/edwin.chen/linux'
+export CDPATH='.:/lhome/HO-2331/ext/monorepo/cpp/apps:/lhome/HO-2331/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
 export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
@@ -48,6 +48,10 @@ export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.6076
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
 #export VALGRIND_LIB=~echen/bin
+
+export LC_ALL=en_US.utf8
+export LANG=en_US.utf8
+export LANGUAGE=en_US.utf8
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
@@ -176,7 +180,7 @@ LS_COLORS="${LS_COLORS}:*.lib=92"
 export LS_COLORS
 
 # Avoid weird characters when gcc outputs warnings
-export LC_ALL=C
+#export LC_ALL=C
 
 #source ~/merge_history.bash
 HISTSIZE=500000

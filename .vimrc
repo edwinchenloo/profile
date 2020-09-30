@@ -1,38 +1,49 @@
-"if has("multi_byte")
-"  if &termencoding == ""
-"     let &termencoding = &encoding
-"  endif
-"  set encoding=utf-8
-"  setglobal fileencoding=utf-8
-"  "setglobal bomb
-"  set fileencodings=ucs-bom,utf-8,latin1
-"endif
-
-
 filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
-filetype plugin on            " Enable filetype-specific plugins
+filetype plugin indent on     " Enable filetype-specific plugins
 "set background=dark
 "set ruler                     " show the line number on the bar
+
+fu! SaveSess()
+    execute 'mks! ' . getcwd() . '/.session.vim'
+endfunction
+
+fu! RestoreSess()
+if filereadable(getcwd() . '/.session.vim')
+    execute 'so ' . getcwd() . '/.session.vim'
+    if bufexists(1)
+        for l in range(1, bufnr('$'))
+            if bufwinnr(l) == -1
+                exec 'sbuffer ' . l
+            endif
+        endfor
+    endif
+endif
+endfunction
 
 " Save file after editing
 autocmd InsertLeave * write
 autocmd BufWritePre * %s/\s\+$//e
-
+"autocmd VimLeave * call SaveSess()
+"autocmd VimEnter * nested call RestoreSess()
 
 highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
 
+set autoindent
 set autoread                   " watch for file changes
 set backspace=indent,eol,start " got backspace?
 "set backup
 "set backupdir=$HOME/.vim_backup
+set clipboard=unnamedplus
 set complete=.,w,b,u,U,t,i,d   " do lots of scanning on tab completion
 set completeopt=longest,menuone,preview
 set diffopt=filler,iwhite      " ignore all whitespace and sync
+set encoding=utf-8
 set expandtab                  " expand <tab>s to spaces
 set fileformats=unix
 set formatoptions-=cro
+set hidden                    " allow switching buffers without saving it
 set history=500
 set hlsearch                  " highlight searched
 set incsearch                 " start searching while typing search string chars
@@ -42,14 +53,13 @@ set laststatus=2
 "set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
 set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
-set nohidden                  " remove the buffer after closing it
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
-set path+=/lhome/master/ext
-set path+=/lhome/master/ext/monorepo/cpp/libs
-set path+=/lhome/master/ext/monorepo/cpp/libs/protocol
-set path+=/lhome/master/xr-snap/src/xr/snap
-set path+=/lhome/trader-repo
+set path=.,**
+set path+=/usr/include/**
+set path+=/lhome/master/ext/**
+set path+=/lhome/master/xr-snap/src/xr/snap/**
+set path+=/lhome/trader-repo/**
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
@@ -57,7 +67,9 @@ set shiftwidth=4              " spaces for each step
 set showcmd
 set showmatch                 " show matching bracket
 set smartcase                 " if pattern includes upper and lower case it is case sensitive, otherwise it is not
+set smartindent
 set smarttab                  " tab and backspace are smart
+set statusline+=%F
 set softtabstop=4             " set virtual tab stop
 set t_Co=256
 set t_vb=                     " visual bell
@@ -69,6 +81,11 @@ set visualbell
 set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
+
+let g:loaded_youcompleteme = 1
+
+syntax on
+colorscheme archman
 
 if has('mouse')
   set mouse=r                   " enble mouse support in console
@@ -98,12 +115,12 @@ nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 " Invoke make
 "nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
 "nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
-nnoremap <silent> <F5> :wa\|AsyncRun make -j 8 <cr>
-"nnoremap <silent> <F6> :wa\|AsyncRun -mode=term -pos=bottom python -m xrmake2 -j 1 -d <cr>
-nnoremap <silent> <F6> :wa\|AsyncRun -mode=term -pos=bottom python -m maketraderunit --rocket -j 1 -d -v <cr>
-nnoremap <silent> <F7> :AsyncRun -save=2 -pos=bottom python -m xrmake2 -d -v <cr>
-nnoremap <silent> <F8> :wa\|AsyncRun -pos=bottom python -u -m xrbuild -rv debug <cr>
-"nnoremap <silent> <F7> :wa\|AsyncRun g++ -std=c++14 "%"<cr>
+nnoremap <silent> <F5> :AsyncRun -raw -save=2 -pos=bottom -mode=term make -j 8 <cr>
+"nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
+nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m maketraderunit --rocket -j 2 -d -v <cr>
+
+nnoremap <silent> <F7> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 --print-all-errors --enable-onload201811_U1    -d  <cr>
+nnoremap <silent> <F8> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -u -m xrbuild -rv debug <cr>
 
 " dos2unix
 nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
@@ -130,6 +147,8 @@ Plug 'vim-airline/vim-airline-themes'
 "Plug 'lyuts/vim-rtags'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
+Plug 'sheerun/vim-polyglot'
+Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
 

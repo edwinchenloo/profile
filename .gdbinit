@@ -3,11 +3,16 @@
 
 #set max-value-size unlimited
 set history save on
-set history size -1
-set style enabled off
+#set history size -1
+set host-charset UTF-8
+
+#set style enabled off
 catch throw
+#catch signal all
+#set directories /lhome/HO-2331/ext/monorepo
 #break __sanitizer::Die
 #break __asan::ReportGenericError
+directory /lhome/HO-2331/ext/monorepo
 
 python
 import sys

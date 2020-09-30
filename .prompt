@@ -70,8 +70,9 @@ then
         TOP_LINE=$TOP_LINE"╮"
         BOTTOM_LINE=$BOTTOM_LINE"╯"
 
-        PST="\n$borderc${BOTTOM_LINE}\n${TOP_LINE}\n│${userc}${usern}@$userc${hostn} $dirc<${PWD}>$dashc${LINE}$timec${ctime}$borderc│\n"
-        PST=$PST"$prev${git_branch}<\!>$nc "
+        PST="\n$borderc${BOTTOM_LINE}\n${TOP_LINE}\n│${userc}${usern}@$userc${hostn} $dirc<${PWD}>$dashc${LINE}$timec${ctime}$borderc│$reset\n"
+        #PST=$PST"$prev${git_branch}<\!>$nc "
+        PST=$PST"\!> "
 
         # Append some text for xterm's title without ASCII excape codes for Putty
         #PS1=$PST`echo -ne "\033]0;"`${usern}@${hostn}`echo -ne "\007"`
