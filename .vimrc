@@ -1,3 +1,7 @@
+if has("autocmd")
+   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
 filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
 filetype plugin indent on     " Enable filetype-specific plugins
@@ -74,6 +78,7 @@ set softtabstop=4             " set virtual tab stop
 set t_Co=256
 set t_vb=                     " visual bell
 set tabstop=4
+set termguicolors
 set ttyfast                   " we have a fast terminal
 set undolevels=1000
 set updatecount=100           " switch every 100 chars
@@ -113,8 +118,6 @@ nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 "let g:asyncrun_encs = 'utf-8'
 
 " Invoke make
-"nnoremap <silent> <F7> :wa\|make -j8 install\|copen<CR>
-"nnoremap <silent> <F7> :wa\|AsyncRun -raw -cwd=$(VIM_FILEDIR) /opt/anaconda-python-2.7.8/bin/python -m xrmake -j 23 -d <cr>
 nnoremap <silent> <F5> :AsyncRun -raw -save=2 -pos=bottom -mode=term make -j 8 <cr>
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
 nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m maketraderunit --rocket -j 2 -d -v <cr>
