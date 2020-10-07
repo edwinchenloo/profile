@@ -44,6 +44,7 @@ set complete=.,w,b,u,U,t,i,d   " do lots of scanning on tab completion
 set completeopt=longest,menuone,preview
 set diffopt=filler,iwhite      " ignore all whitespace and sync
 set encoding=utf-8
+"set errorformat=%f:%l:%c:%m
 set expandtab                  " expand <tab>s to spaces
 set fileformats=unix
 set formatoptions-=cro
@@ -118,12 +119,12 @@ nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 "let g:asyncrun_encs = 'utf-8'
 
 " Invoke make
-nnoremap <silent> <F5> :AsyncRun -raw -save=2 -pos=bottom -mode=term make -j 8 <cr>
+nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <cr>
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
-nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m maketraderunit --rocket -j 2 -d -v <cr>
+nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
 
-nnoremap <silent> <F7> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 --print-all-errors --enable-onload201811_U1    -d  <cr>
-nnoremap <silent> <F8> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -u -m xrbuild -rv debug <cr>
+nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake2 --print-all-errors --enable-onload201811_U1    -d  <cr>
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
 
 " dos2unix
 nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>

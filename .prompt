@@ -34,7 +34,7 @@ then
     timec=${yellow}
     typec=${magenta}
     dirc=${bright_green}
-    if [ -x $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
+    if [ -z $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
     dashc=${dgray}
     nc=${white}
 
