@@ -31,8 +31,9 @@ autocmd BufWritePre * %s/\s\+$//e
 "autocmd VimLeave * call SaveSess()
 "autocmd VimEnter * nested call RestoreSess()
 
-highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
+highlight LineNr term=bold cterm=NONE ctermfg=lightgray gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
+highlight Search guibg='Purple' guifg='NONE'
 
 set autoindent
 set autoread                   " watch for file changes
@@ -62,8 +63,8 @@ set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
 set path=.,**
 set path+=/usr/include/**
-set path+=/lhome/master/ext/**
-set path+=/lhome/master/xr-snap/src/xr/snap/**
+set path+=/lhome/snap/ext/**
+set path+=/lhome/snap/xr-snap/src/xr/snap/**
 set path+=/lhome/trader-repo/**
 set report=0                  " report back number of lines yanked or deleted
 set scrolloff=5               " keep at least 5 lines above/below
@@ -92,6 +93,9 @@ let g:loaded_youcompleteme = 1
 
 syntax on
 colorscheme archman
+" terminal colors
+highlight Normal guibg=black guifg=white
+
 
 if has('mouse')
   set mouse=r                   " enble mouse support in console
@@ -112,22 +116,31 @@ let g:asyncrun_open = 20
 "execute "set <M-o>=o"
 nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
+" Switch buffers
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
 
 "let PYTHONNUNBUFFERRED=1
 "let g:asyncrun_encs = 'utf-8'
 
+nnoremap <silent> <F3> :/error:<CR>
+
 " Invoke make
-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <cr>
-"nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=term python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
+nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.tmp/build make -j 8 <cr>
+"nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
 nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
 
 nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake2 --print-all-errors --enable-onload201811_U1    -d  <cr>
-nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
+"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
 
 " dos2unix
-nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
+"nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
+nnoremap <silent> <F9> :AsyncStop<CR>
+
 
 " Write as sudo
 cmap w!! w !sudo tee '%' > /dev/null

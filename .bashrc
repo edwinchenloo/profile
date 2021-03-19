@@ -38,7 +38,7 @@ fi
 
 source ~/.prompt
 
-export CDPATH='.:/lhome/HO-2331/ext/monorepo/cpp/apps:/lhome/HO-2331/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
+export CDPATH='.:/lhome/snap/ext/monorepo/cpp/apps:/lhome/snap/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
 export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
 export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
 export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
@@ -52,6 +52,8 @@ export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.6076
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
 #export VALGRIND_LIB=~echen/bin
+export SNAP_ROOT_DIR=/lhome/snap
+export TRADER_REPO_DIR=/lhome/trader-repo
 
 export LC_ALL=en_US.utf8
 export LANG=en_US.utf8
@@ -72,7 +74,7 @@ pskill()
         echo "slaughtered."
 }
 
-clonesnap()
+clonesnapbranch()
 {
     git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git "$1"
     cd "$1"
@@ -87,7 +89,7 @@ mergemaster()
     git checkout master
     git pull --rebase
     git checkout $BRANCH
-    git merge -m 'merge with master' master
+    git merge --no-ff -m 'merge with master' master
 }
 
 #LS_COLORS base
@@ -194,12 +196,6 @@ HISTFILESIZE=500000
 #export LBM_MONITOR_TRANSPORT=lbm
 
 #for N in `seq 78 106`; do HOST=ng$N; echo -n $HOST ""; ssh $HOST grep ^SELINUX= /etc/selinux/config; done
-
-function bpftp() {
-  export SSHPASS='f1r$t0rd3r'
-  sshpass -e sftp idev@sftp.maystreet.com
-  export SSHPASS=
-}
 
 function extract()      # Handy Extract Program
 {

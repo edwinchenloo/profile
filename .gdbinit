@@ -12,7 +12,7 @@ catch throw
 #set directories /lhome/HO-2331/ext/monorepo
 #break __sanitizer::Die
 #break __asan::ReportGenericError
-directory /lhome/HO-2331/ext/monorepo
+directory /lhome/snap/ext/monorepo
 
 python
 import sys
