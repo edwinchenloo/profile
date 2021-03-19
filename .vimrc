@@ -166,6 +166,7 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'sheerun/vim-polyglot'
 Plug 'Valloric/YouCompleteMe'
+Plug 'atahabaki/archman-vim'
 
 call plug#end()
 
