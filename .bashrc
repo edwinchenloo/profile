@@ -58,6 +58,7 @@ export TRADER_REPO_DIR=/lhome/trader-repo
 export LC_ALL=en_US.utf8
 export LANG=en_US.utf8
 export LANGUAGE=en_US.utf8
+export LLVM_INSTALL=/usr/lib/llvm-7
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
