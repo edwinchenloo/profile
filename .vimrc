@@ -129,13 +129,14 @@ nnoremap <S-Tab> :bprevious<CR>
 nnoremap <silent> <F3> :/error:<CR>
 
 " Invoke make
-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.ModelResponses/build make -j 8 <cr>
+nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd/build make -j 8 <cr>
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
 nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
 
-nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake2 --print-all-errors --enable-onload201811_U1    -d  <cr>
-"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
-nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
+nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake2 --print-all-errors --enable-onload201811_U1 -d  --fast-build <cr>
+
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
+"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
 
 " dos2unix
 "nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>

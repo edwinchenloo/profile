@@ -6,6 +6,10 @@ set history save on
 #set history size -1
 set host-charset UTF-8
 
+#allow printing of long char array values
+set print elements 4096
+set print static off
+
 #set style enabled off
 catch throw
 #catch signal all
