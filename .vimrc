@@ -9,19 +9,22 @@
 "endif
 
 if has("autocmd")
+   filetype indent on            " Enable filetype-specific indenting
+   filetype plugin on            " Enable filetype-specific plugins
+
    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+   " Makefiles require tab characters
+   au FileType make set tabstop=4 shiftwidth=4 softtabstop=0 expandtab
 endif
 
 filetype on                   " Enable filetype detection
-filetype indent on            " Enable filetype-specific indenting
-filetype plugin on            " Enable filetype-specific plugins
 "set background=dark
 "set ruler                     " show the line number on the bar
 
 " Save file after editing
 autocmd InsertLeave * write
 autocmd BufWritePre * %s/\s\+$//e
-
 
 highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
@@ -34,8 +37,10 @@ set complete=.,w,b,u,U,t,i,d   " do lots of scanning on tab completion
 set completeopt=longest,menuone,preview
 set diffopt=filler,iwhite      " ignore all whitespace and sync
 set expandtab                  " expand <tab>s to spaces
+set encoding=utf-8
 set fileformats=unix
 set formatoptions-=cro
+set hidden                    " no need to save buffer when switching
 set history=500
 set hlsearch                  " highlight searched
 set incsearch                 " start searching while typing search string chars
@@ -45,7 +50,6 @@ set laststatus=2
 "set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
 set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
-set nohidden                  " remove the buffer after closing it
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
 set path+=/lhome/master/ext
@@ -95,6 +99,7 @@ let g:asyncrun_open = 20
 " Switch between header and cpp file using Alt-o
 "execute "set <M-o>=o"
 nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+nnoremap <silent> <c-O> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
@@ -136,6 +141,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'sheerun/vim-polyglot'
+Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
 

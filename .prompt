@@ -61,9 +61,19 @@ then
         # cut doesn't handle utf8 bytes so create horizontal lines using string manipulation for now
         TOP_LINE="╭"
         BOTTOM_LINE="╰"
-        FILLS=${cols}-2
+        let FILLS=${cols}-2
         for (( g=0; g<$FILLS; g++ ))
             do
+                #let R=255-${g}*255/${FILLS}
+                #let G=(${g}*510/${FILLS})
+                #let B=(${g}*255/${FILLS})
+                #if [${G}>255]
+                #then
+                #  let G=510-${G}
+                #fi
+                #echo '=======r:' ${R} ' g:' ${G} ' b:' ${B}
+                #rainbowc="\e[48;2;$R;$G;$Bm\e[38;2;255-$R;255-$G;255-$Bm"
+
                 TOP_LINE=$TOP_LINE"─"
                 BOTTOM_LINE=$BOTTOM_LINE"─"
             done

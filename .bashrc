@@ -43,15 +43,19 @@ export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
 export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
 export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
 export APCA_API_DATA_URL="https://data.alpaca.markets"
+export DISPLAY="`grep nameserver /etc/resolv.conf | sed 's/nameserver //'`:0"
 export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
+export PATH=".:~/bin:~/linux/depot_tools:/usr/local/go/bin:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
 #export VALGRIND_LIB=~echen/bin
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
@@ -302,3 +306,5 @@ shopt -s extglob       # Necessary for programmable completion.
 # Need this for Backspace to work properly
 stty erase ^?
 
+
+export LIBGL_ALWAYS_INDIRECT=1
