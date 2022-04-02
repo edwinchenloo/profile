@@ -224,10 +224,6 @@ function rg() {
   grep -r --exclude=\*/.svn/\* --exclude=\*.swp --include $2 $1 .
 }
 
-function u() {
-  uncrustify -c ~/utils/uncrustify.cfg -l CPP --replace $1
-}
-
 function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
 function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
 
