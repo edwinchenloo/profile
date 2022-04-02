@@ -11,19 +11,23 @@ alias cdxr="cd xr-snap/src/xr/snap"
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
 alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
 alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
+alias clonesnap="git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git"
 alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
+alias clonetraderrepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2.git trader-repo"
 alias cmaked='cmake -DCMAKE_BUILD_TYPE=DEBUG ..'
 alias cmaker='cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO ..'
 alias du='du -kh'    # Makes a more readable output.
 alias df='df -kTh'
+alias f='find /lhome/HO-2331/xr-snap/src/xr/snap /lhome/HO-2331/ext/monorepo/cpp -type f -name '
 alias fhcp=' echo \'\''welcome2xr\!\'\''|sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh/src/fh /usr/local/xr/bin/fh.edwin'
-alias fhsync='rsync -avzh --include="*/" --include="*.cpp" --include="*.hpp" --exclude="*" edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh /home/edwin.chen/linux'
 alias gc="git commit -a -m"
 alias gd="git diff --ignore-space-at-eol -b -w --ignore-blank-lines"
 #alias gdb='~/bin/gdb --data-directory=~/bin/data-directory '
-alias gdbtss='cd ~/linux/tss.maystreet;gdb -c /opt/cores/core* TimeSalesServer'
 alias gitroot='cd $(git rev-parse --show-toplevel)'
+alias gl='git log --all --graph --decorate'
 alias gpp='git pull && git push'
+alias grb='git checkout master && git pull && git checkout - && git rebase -'
+alias gsc='git config --global credential.helper store'
 alias hg='history|grep $1'
 alias h='history'
 alias initsnap="ln -s `pwd`/buildtools/pre-commit -t .git/hooks"
@@ -38,9 +42,12 @@ alias m8='make -j 8'
 alias m16='make -j 16'
 alias m24='make -j 24'
 alias monorepo='gitroot && cd ext/monorepo/cpp/libs'
-alias ms='python -m xrmake -d -j 12 -v'
-alias mt='python -m xrmake2 -d -j 12 -v'
-alias mu='python -m maketraderunit --rocket -d -j 12'
+alias ms='python -m xrmake2 -d -j 12 -v'
+alias mm='xrbuild -rv debug'
+alias mmt='xrbuild --nocg --nopu test'
+alias mmts='xrbuild -rv test'
+alias mt=ms
+alias mu='python -m maketraderunit -rd --rocket -v -d -j 12'
 alias ogrelogs='ll -ltrd /opt/xr/logs/ogre/*'
 alias optbinrel='cd /home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress'
 alias optbindeb='cd /home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress'
@@ -55,19 +62,20 @@ alias pmake="python -m xrmake -j 20"
 alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
-alias qm='use x3p_b-1.2-dev && unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH'
-alias qs='./quickstart.sh && source setupEnv.sh'
+alias qm='use x3p_b-1.2-dev && unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";spack'
+alias qs='./quickstart.sh && source setupEnv.sh;spack'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmbin='find -name '\''*.bin'\'' -print0 |xargs -0 rm -f'
 alias rmcores='rm -f /opt/cores/*core*'
-alias ras='sudo -u AuctionServer /etc/init.d/AuctionServer restart;sleep 1;ll -tr /opt/AuctionServer/log/current/A*.txt'
-alias rogre='sudo -u sysadmin /opt/ogre/scripts/ogre-dev.sh;sleep 1;ll -tr /var/log/ogre/dev/ogre*.txt'
-alias rsim='sudo -u ExchangeSim /etc/init.d/ExchangeSim restart;sleep 1;ll -tr /opt/ExchangeSim/log/current/e*'
+alias ras='/opt/xr/AuctionServer/asdev.sh start'
+alias rogre='/opt/xr/Ogre/ogredev.sh start'
+alias rsim='/opt/xr/ExchangeSim/ExchangeSim.sh start'
 alias scpo="sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /usr/local/xr/bin"
 alias setupsor='source /opt/smds/env.sh;source /opt/sor/env.sh;cd /opt/sor'
 #alias syn='synergyc -1 --no-camp edwin-laptop'
-alias sm='source .monorepo_profile'
-alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost"'
+alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
+alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
+alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
 alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
 alias synctime='sudo hwclock -s'
 alias sysadmin='sudo su -l sysadmin'
@@ -75,7 +83,7 @@ alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cjvf $1.tbz 
 alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
 alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
 alias tree='tree -Csuh'
-alias u='~/bin/uncrustify --no-backup -c ~/utils/uncrustify.cfg -l cpp '
+alias u='uncrustify --no-backup -c ~/.uncrustify/uncrustify.cfg -l cpp '
 alias updatealiases='scp edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
 alias vi='vim'
 alias xrmake='python -m xrmake'
@@ -100,9 +108,6 @@ then
     export TERM='xterm-256color'
 else
     alias ll='ls -l -tr --full-time'
-
-    #export TERM='xterm-color'
-    #export PS1="\[\e[36;1m\]\u@\h \d \t\n\w {\!}\[\e[0m\] "
 fi
 
-function rgrep { find "$2" -regextype posix-extended -regex '^.*(hpp|cpp|xml|am)' -type f |xargs grep -nIi "$1"; }
+function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|xml|am|py)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }

@@ -38,7 +38,7 @@ fi
 
 source ~/.prompt
 
-#export CDPATH='.:~:/net/chihq-share-01/home_dirs/edwin.chen/linux'
+export CDPATH='.:/lhome/snap/ext/monorepo/cpp/apps:/lhome/snap/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
 export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
 export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
 export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
@@ -48,7 +48,7 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:/usr/local/go/bin:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
+export PATH=".:~/bin:~/linux/depot_tools:/usr/local/go/bin:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
@@ -56,6 +56,9 @@ export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_2018
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
+
+#export SNAP_ROOT_DIR=/lhome/snap
+#export TRADER_REPO_DIR=/lhome/trader-repo
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
@@ -72,7 +75,7 @@ pskill()
         echo "slaughtered."
 }
 
-clonesnap()
+clonesnapbranch()
 {
     git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git "$1"
     cd "$1"
@@ -87,7 +90,7 @@ mergemaster()
     git checkout master
     git pull --rebase
     git checkout $BRANCH
-    git merge -m 'merge with master' master
+    git merge --no-ff -m 'merge with master' master
 }
 
 #LS_COLORS base
@@ -184,7 +187,7 @@ LS_COLORS="${LS_COLORS}:*.lib=92"
 export LS_COLORS
 
 # Avoid weird characters when gcc outputs warnings
-export LC_ALL=C
+#export LC_ALL=C
 
 #source ~/merge_history.bash
 HISTSIZE=500000
@@ -194,12 +197,6 @@ HISTFILESIZE=500000
 #export LBM_MONITOR_TRANSPORT=lbm
 
 #for N in `seq 78 106`; do HOST=ng$N; echo -n $HOST ""; ssh $HOST grep ^SELINUX= /etc/selinux/config; done
-
-function bpftp() {
-  export SSHPASS='f1r$t0rd3r'
-  sshpass -e sftp idev@sftp.maystreet.com
-  export SSHPASS=
-}
 
 function extract()      # Handy Extract Program
 {

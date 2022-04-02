@@ -34,7 +34,7 @@ then
     timec=${yellow}
     typec=${magenta}
     dirc=${bright_green}
-    if [ -x $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
+    if [ -z $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
     dashc=${dgray}
     nc=${white}
 
@@ -84,9 +84,9 @@ then
         #PST=$PST"$prev${git_branch}<\!>$nc "
         PST=$PST"\!> "
 
-        # Append some text for xterm's title without ASCII excape codes for Putty
+        # Append some text for xterm's or putty's title without ASCII escape codes
         #PS1=$PST`echo -ne "\033]0;"`${usern}@${hostn}`echo -ne "\007"`
-        #PS1=$PST'\[\e]0;$usern@${hostn}-${PWD}\a\]'
+        PST=$PST'\[\e]0;$usern@${hostn} ${PWD}\a\]'
         PS1=$PST
     }
 
