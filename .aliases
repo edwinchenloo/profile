@@ -77,6 +77,7 @@ alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; mo
 alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
 alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
+alias synctime='sudo hwclock -s'
 alias sysadmin='sudo su -l sysadmin'
 alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cjvf $1.tbz $1'
 alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'

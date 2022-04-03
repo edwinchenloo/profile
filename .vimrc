@@ -1,5 +1,11 @@
 if has("autocmd")
+   filetype indent on            " Enable filetype-specific indenting
+   filetype plugin on            " Enable filetype-specific plugins
+
    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+   " Makefiles require tab characters
+   au FileType make set tabstop=4 shiftwidth=4 softtabstop=0 expandtab
 endif
 
 filetype on                   " Enable filetype detection
@@ -31,7 +37,7 @@ autocmd BufWritePre * %s/\s\+$//e
 "autocmd VimLeave * call SaveSess()
 "autocmd VimEnter * nested call RestoreSess()
 
-highlight LineNr term=bold cterm=NONE ctermfg=lightgray gui=NONE guifg=DarkGrey guibg=NONE
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
 highlight Search guibg='Purple' guifg='NONE'
 
@@ -47,6 +53,7 @@ set diffopt=filler,iwhite      " ignore all whitespace and sync
 set encoding=utf-8
 "set errorformat=%f:%l:%c:%m
 set expandtab                  " expand <tab>s to spaces
+set encoding=utf-8
 set fileformats=unix
 set formatoptions-=cro
 set hidden                    " allow switching buffers without saving it
@@ -116,6 +123,7 @@ let g:asyncrun_open = 20
 " Switch between header and cpp file using Alt-o
 "execute "set <M-o>=o"
 nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+nnoremap <silent> <c-O> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
 " Switch buffers
 nnoremap <Tab> :bnext<CR>
@@ -132,9 +140,9 @@ nnoremap <silent> <F3> :/error:<CR>
 nnoremap q <c-v>
 
 " Invoke make
-"nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd/build make -j 8 <cr>
-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
-nnoremap m :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
+nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <cr>
+"nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
+"nnoremap m :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
 "-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.ModelResponses/build make -j 8 <cr>
 
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
@@ -173,8 +181,8 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'sheerun/vim-polyglot'
-Plug 'ycm-core/YouCompleteMe', { 'do': '.install.py' }
 "Plug 'atahabaki/archman-vim'
+Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
 

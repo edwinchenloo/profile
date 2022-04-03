@@ -43,22 +43,22 @@ export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
 export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
 export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
 export APCA_API_DATA_URL="https://data.alpaca.markets"
+export DISPLAY="`grep nameserver /etc/resolv.conf | sed 's/nameserver //'`:0"
 export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:/opt/intel/vtune_profiler_2020.1.0.607630/bin64:$PATH"
+export PATH=".:~/bin:~/linux/depot_tools:/usr/local/go/bin:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
 #export VALGRIND_LIB=~echen/bin
-export SNAP_ROOT_DIR=/lhome/snap
-export TRADER_REPO_DIR=/lhome/trader-repo
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
 
-export LC_ALL=en_US.utf8
-export LANG=en_US.utf8
-export LANGUAGE=en_US.utf8
-export LLVM_INSTALL=/usr/lib/llvm-7
+#export SNAP_ROOT_DIR=/lhome/snap
+#export TRADER_REPO_DIR=/lhome/trader-repo
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
@@ -224,10 +224,6 @@ function rg() {
   grep -r --exclude=\*/.svn/\* --exclude=\*.swp --include $2 $1 .
 }
 
-function u() {
-  uncrustify -c ~/utils/uncrustify.cfg -l CPP --replace $1
-}
-
 function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
 function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
 
@@ -303,3 +299,5 @@ shopt -s extglob       # Necessary for programmable completion.
 # Need this for Backspace to work properly
 stty erase ^?
 
+
+export LIBGL_ALWAYS_INDIRECT=1
