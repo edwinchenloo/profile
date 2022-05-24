@@ -47,8 +47,8 @@ set backspace=indent,eol,start " got backspace?
 "set backup
 "set backupdir=$HOME/.vim_backup
 set clipboard=unnamedplus
-set complete=.,w,b,u,U,t,i,d   " do lots of scanning on tab completion
-set completeopt=longest,menuone,preview
+"set complete=.,w,b,u,U,t,i,d   " do lots of scanning on tab completion
+"set completeopt=longest,menuone,preview
 set diffopt=filler,iwhite      " ignore all whitespace and sync
 set encoding=utf-8
 "set errorformat=%f:%l:%c:%m
@@ -74,6 +74,7 @@ set path+=/lhome/snap/ext/**
 set path+=/lhome/snap/xr-snap/src/xr/snap/**
 set path+=/lhome/trader-repo/**
 set report=0                  " report back number of lines yanked or deleted
+set rtp+=~/.vim/plugged/YouCompleteMe
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
 "set showbreak='¬'             " for wrapped lines
@@ -96,7 +97,7 @@ set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
 
-let g:loaded_youcompleteme = 1
+"let g:loaded_youcompleteme = 1
 
 syntax on
 colorscheme archman
@@ -139,7 +140,9 @@ nnoremap <silent> <F3> :/error:<CR>
 nnoremap q <c-v>
 
 " Invoke make
-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd/build make -j 8 <cr>
+nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <cr>
+"nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
+"nnoremap m :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
 "-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.ModelResponses/build make -j 8 <cr>
 
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
@@ -178,6 +181,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'sheerun/vim-polyglot'
+"Plug 'atahabaki/archman-vim'
 Plug 'Valloric/YouCompleteMe'
 
 call plug#end()
