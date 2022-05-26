@@ -68,9 +68,11 @@ set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
+set paste noai                " don't autoindent while pasting from clipboard
 set path=.,**
 set path+=/usr/include/**
-set path+=/lhome/snap/ext/**
+"set path+=/lhome/snap/ext/**
+set path+=/lhome/snap/ext/monorepo/dist/relwithdebinfo/include/**
 set path+=/lhome/snap/xr-snap/src/xr/snap/**
 set path+=/lhome/trader-repo/**
 set report=0                  " report back number of lines yanked or deleted
@@ -93,6 +95,7 @@ set ttyfast                   " we have a fast terminal
 set undolevels=1000
 set updatecount=100           " switch every 100 chars
 set visualbell
+set wildignore=*.dll,*.exe,*.so,*.a    " ignore these when searching over wildcard files
 set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
@@ -136,6 +139,7 @@ nnoremap <S-Tab> :bprevious<CR>
 "let g:asyncrun_encs = 'utf-8'
 
 nnoremap <silent> <F3> :/error:<CR>
+nnoremap <silent> <F4> :execute "vimgrep /" . expand("<cword>") . "/j **/*"<Bar>cw<CR>
 
 nnoremap q <c-v>
 
@@ -148,10 +152,11 @@ nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <c
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
 nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
 
-nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake2 --print-all-errors --enable-onload201811_U1 -d  --fast-build <cr>
+nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake --print-all-errors -j 3 --enable-onload201811_U1 --debug <cr>
 
-nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -u -m xrbuild -rv debug <cr>
-"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
+"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -post=AnsiEsc python -u -m xrbuild -rv release <cr>
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
+"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -d - j 12 <cr>
 
 " dos2unix
 "nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
@@ -164,25 +169,32 @@ cmap w!! w !sudo tee '%' > /dev/null
 "type :PlugUpdate to update them
 call plug#begin('~/.vim/plugged')
 
-"Plug 'octol/vim-cpp-enhanced-highlight'
-"Plug 'neoclide/coc.nvim', {'branch':'release'}
-"Plug 'neoclide/coc.nvim', {'branch':'release'}
-"Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-"Plug 'airblade/vim-gitgutter'
-"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'sheerun/vim-polyglot'
+Plug 'powerman/vim-plugin-AnsiEsc'
+Plug 'jremmen/vim-ripgrep'
 Plug 'ryanoasis/vim-devicons'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'scrooloose/nerdcommenter'
-Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-"Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
-"Plug 'lyuts/vim-rtags'
+Plug 'vim-airline/vim-airline'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-fugitive'
+Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
+Plug 'ray-x/aurora'
+Plug 'luochen1990/rainbow'
+let g:rainbow_active = 1
+Plug 'thaerkh/vim-indentguides'
+"Plug 'Valloric/YouCompleteMe'
+"Plug 'Xuyuanp/nerdtree-git-plugin'
 "Plug 'atahabaki/archman-vim'
-Plug 'Valloric/YouCompleteMe'
+"Plug 'jszakmeister/vim-togglecursor'
+"Plug 'lyuts/vim-rtags'
+"Plug 'neoclide/coc.nvim', {'branch':'release'}
+"Plug 'octol/vim-cpp-enhanced-highlight'
+"Plug 'scrooloose/nerdcommenter'
+"Plug 'scrooloose/nerdtree'
+"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
 call plug#end()
 

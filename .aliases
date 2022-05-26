@@ -6,6 +6,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+alias arch='cat /sys/devices/cpu/caps/pmu_name;gcc -march=native -Q --help=target|grep march;/usr/bin/arch'
 alias bd=". bd -si"
 alias cdxr="cd xr-snap/src/xr/snap"
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
@@ -41,7 +42,7 @@ alias m='make -j 16'
 alias m8='make -j 8'
 alias m16='make -j 16'
 alias m24='make -j 24'
-alias monorepo='gitroot && cd ext/monorepo/cpp/libs'
+alias monorepo='cd ${XR_MONOREPO_ROOT}/cpp/libs'
 alias ms='python -m xrmake2 -d -j 12 -v'
 alias mm='xrbuild -rv debug'
 alias mmt='xrbuild --nocg --nopu test'
@@ -63,19 +64,22 @@ alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
 alias qm='use x3p_b-1.2-dev && unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";spack'
-alias qs='./quickstart.sh && source setupEnv.sh;spack'
+alias qs='./quickstart.sh && source setupEnv.sh;spack;/usr/bin/usepackage openonload_b_10_201811-u1'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmbin='find -name '\''*.bin'\'' -print0 |xargs -0 rm -f'
 alias rmcores='rm -f /opt/cores/*core*'
 alias ras='/opt/xr/AuctionServer/asdev.sh start'
 alias rogre='/opt/xr/Ogre/ogredev.sh start'
 alias rsim='/opt/xr/ExchangeSim/ExchangeSim.sh start'
+alias sc='~/start_container.sh'
 alias scpo="sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /usr/local/xr/bin"
 alias setupsor='source /opt/smds/env.sh;source /opt/sor/env.sh;cd /opt/sor'
 #alias syn='synergyc -1 --no-camp edwin-laptop'
 alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
+alias snap='cd ${SNAP_ROOT_DIR}/xr-snap/src/xr/snap'
 alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
+alias svim='source /shared/spack/opt/profile/spack.sh;module load vim;module load gdb;module load cgdb;export VIMRUNTIME="/shared/spack/opt/spack/linux-centos6-core2/gcc-8.3.0/vim-8.1.2141-tvxnxo7ub4owep5fkgtt3yshx35kezx4/share/vim/vim81/"'
 alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
 alias synctime='sudo hwclock -s'
 alias sysadmin='sudo su -l sysadmin'
@@ -99,7 +103,7 @@ then
 elif [ -e /lib/terminfo/x/xterm-256color ] ||
      [ -e /usr/share/terminfo/x/xterm-256color ]
 then
-    eval `dircolors ~/.dir_colors`
+    eval `dircolors /home/edwin.chen/.dir_colors`
 
     alias grep='/bin/grep --color=tty '
     alias ll='ls -l -tr --full-time'
@@ -110,4 +114,4 @@ else
     alias ll='ls -l -tr --full-time'
 fi
 
-function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|xml|am|py)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
+function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|xml|am|py|config)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
