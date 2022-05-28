@@ -52,7 +52,7 @@ then
         git_branch="" #$(__git_ps1)
         let FILLS=${cols}-${#prmpt}
         let FILLS=`if [ "$FILLS" -le "1" ]; then echo 1; else echo "$FILLS"; fi`
-        LINE=$(echo "                                                                                                                                   "| cut -c1-$FILLS)
+        LINE=$(echo "                                                                                                                                                                        "| cut -c1-$FILLS)
         #for (( f=0; f<$FILLS; f++ ))
         #    do
         #        LINE=$LINE" "

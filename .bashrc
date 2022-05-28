@@ -4,7 +4,7 @@
 [[ $- == *i* ]] || return
 
 # User specific aliases and functions
-source ~/.aliases
+source /home/edwin.chen/.aliases
 
 # Aliases are available on non interactive shells
 shopt -s expand_aliases
@@ -25,8 +25,8 @@ fi
 export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 
 # This is to have the git branch in my prompt
-if [ -f ~/bin/git-prompt.sh ]; then
-    . ~/bin/git-prompt.sh
+if [ -f /home/edwin.chen/bin/git-prompt.sh ]; then
+    . /home/edwin.chen/bin/git-prompt.sh
     GIT_PS1_SHOWDIRTYSTATE=true
     GIT_PS1_SHOWCOLORHINTS=true
     GIT_PS1_UNTRACKEDFILES=true
@@ -36,7 +36,11 @@ fi
 #    . .profile
 #fi
 
-source ~/.prompt
+if [ ! -z "$TERMCAP" ] && [ "$TERM" == "screen" ]; then
+    export TERMCAP=$(echo $TERMCAP | sed -e 's/Co#8/Co#256/g')
+fi
+
+source /home/edwin.chen/.prompt
 
 export CDPATH='.:/lhome/snap/ext/monorepo/cpp/apps:/lhome/snap/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
 export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
@@ -48,10 +52,9 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:~/bin:~/linux/depot_tools:/usr/local/bin:/usr/local/go/bin:$PATH"
+export PATH=".:/home/edwin.chen/bin:/home/edwin.chen/bin/nvim/bin:/usr/local/bin$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
-export RLM_LICENSE=/home/edwin.chen/linux/Volar/volar-cal-cur-pri-xrtrading_20180901.lic
 #export VALGRIND_LIB=~echen/bin
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
@@ -90,7 +93,7 @@ mergemaster()
     git checkout master
     git pull --rebase
     git checkout $BRANCH
-    git merge --no-ff -m 'merge with master' master
+    git merge -m 'merge with master' master
 }
 
 #LS_COLORS base
@@ -220,8 +223,29 @@ function extract()      # Handy Extract Program
     fi
 }
 
+function cpsh {
+  scp -rp chi-239:/home/edwin.chen/.ssh           /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.aliases       /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.bashrc        /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.bin           /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.cgdb          /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.dir_colors    /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.git           /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.gitconfig     /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.profile       /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.prompt        /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.screenrc      /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.uncrustify    /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/.vimrc         /home/edwin.chen
+  scp -rp chi-239:/home/edwin.chen/bin            /home/edwin.chen/bin
+}
+
 function rg() {
   grep -r --exclude=\*/.svn/\* --exclude=\*.swp --include $2 $1 .
+}
+
+function u() {
+  uncrustify -c /home/edwin.chen/utils/uncrustify.cfg -l CPP --replace $1
 }
 
 function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
@@ -250,13 +274,6 @@ function mydf()         # Pretty-print of 'df' output.
         out=${info[2]}" "$out"] ("$free" free on "$fs")"
         echo -e $out
     done
-}
-
-function my_ip() # Get IP adress on ethernet.
-{
-    MY_IP=$(/sbin/ifconfig bond0 | awk '/inet/ { print $2 } ' |
-      sed -e s/addr://)
-    echo ${MY_IP:-"Not connected"}
 }
 
 function ii()   # Get current host related info.
