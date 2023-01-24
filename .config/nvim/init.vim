@@ -1,7 +1,7 @@
 call plug#begin()
 Plug 'http://github.com/gauteh/vim-cppman'                                    " sudo apt-get install cppman
 Plug 'http://github.com/cappyzawa/trim.nvim'                                  " strip whitespace at end of lines
-Plug 'http://github.com/nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+"Plug 'http://github.com/nvim-treesitter/nvim-treesitter'
 Plug 'http://github.com/yegappan/mru'                                         " Most recently used files
 "Plug 'http://github.com/p00f/nvim-ts-rainbow'                                 " Nested parenthesis coloring
 Plug 'http://github.com/frazrepo/vim-rainbow'                                 " Nested parenthesis coloring

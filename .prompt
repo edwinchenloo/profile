@@ -34,6 +34,7 @@ then
     timec=${yellow}
     typec=${magenta}
     dirc=${bright_green}
+    gitc=${dgray}
     if [ -z $SINGULARITY_CONTAINER ]; then borderc=${cyan}; else borderc=${yellow}; fi
     dashc=${dgray}
     nc=${white}
@@ -47,16 +48,12 @@ then
 
         # Date and time in military format
         ctime=$(date +'%a %D %k:%M:%S.%N')
-        prmpt="|${usern}@${hostn} <${PWD}>${ctime}|"
+        git_branch=$(__git_ps1)
+        prmpt="|${usern}@${hostn} ${PWD}${git_branch}${ctime}|"
         cols=$(tput cols)
-        git_branch="" #$(__git_ps1)
         let FILLS=${cols}-${#prmpt}
         let FILLS=`if [ "$FILLS" -le "1" ]; then echo 1; else echo "$FILLS"; fi`
         LINE=$(echo "                                                                                                                                                                        "| cut -c1-$FILLS)
-        #for (( f=0; f<$FILLS; f++ ))
-        #    do
-        #        LINE=$LINE" "
-        #    done
 
         # cut doesn't handle utf8 bytes so create horizontal lines using string manipulation for now
         TOP_LINE="╭"
@@ -64,29 +61,17 @@ then
         let FILLS=${cols}-2
         for (( g=0; g<$FILLS; g++ ))
             do
-                #let R=255-${g}*255/${FILLS}
-                #let G=(${g}*510/${FILLS})
-                #let B=(${g}*255/${FILLS})
-                #if [${G}>255]
-                #then
-                #  let G=510-${G}
-                #fi
-                #echo '=======r:' ${R} ' g:' ${G} ' b:' ${B}
-                #rainbowc="\e[48;2;$R;$G;$Bm\e[38;2;255-$R;255-$G;255-$Bm"
-
                 TOP_LINE=$TOP_LINE"─"
                 BOTTOM_LINE=$BOTTOM_LINE"─"
             done
         TOP_LINE=$TOP_LINE"╮"
         BOTTOM_LINE=$BOTTOM_LINE"╯"
 
-        PST="\n$borderc${BOTTOM_LINE}\n${TOP_LINE}\n│${userc}${usern}@$userc${hostn} $dirc<${PWD}>$dashc${LINE}$timec${ctime}$borderc│$reset\n"
-        #PST=$PST"$prev${git_branch}<\!>$nc "
+        PST="\n$borderc${BOTTOM_LINE}\n${TOP_LINE}\n│${userc}${usern}@$userc${hostn} $dirc${PWD}$gitc$git_branch$dashc${LINE}$timec${ctime}$borderc│$reset\n"
         PST=$PST"\!> "
 
-        # Append some text for xterm's or putty's title without ASCII escape codes
-        #PS1=$PST`echo -ne "\033]0;"`${usern}@${hostn}`echo -ne "\007"`
-        PST=$PST'\[\e]0;$usern@${hostn} ${PWD}\a\]'
+        # Append some text, including git branch, on xterm's or putty's title without ASCII escape codes
+        PST=$PST'\[\e]0;$usern@${hostn} ${PWD} ${bit_branch}\a\]'
         PS1=$PST
     }
 

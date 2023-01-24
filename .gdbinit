@@ -16,7 +16,8 @@ catch throw
 #set directories /lhome/HO-2331/ext/monorepo
 #break __sanitizer::Die
 #break __asan::ReportGenericError
-directory /lhome/snap/ext/monorepo
+#directory /lhome/snap/ext/monorepo
+directory /lhome/monorepo
 
 python
 import sys
@@ -24,3 +25,6 @@ sys.path.insert(0, '/home/edwin.chen/.gdb/printers/python')
 from libstdcxx.v6.printers import register_libstdcxx_printers
 register_libstdcxx_printers (None)
 end
+
+skip -rfu ^std::
+skip -rfu ^assemblies::AssemblyBase

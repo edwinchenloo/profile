@@ -22,19 +22,16 @@ if [ -f /opt/qt55/bin/qt55-env.sh ]; then
     source /opt/qt55/bin/qt55-env.sh
 fi
 
-export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+ldpathedit -p '/home/edwin.chen/.local/gcc/lib64'
+ldpathedit -p '.'
 
 # This is to have the git branch in my prompt
-if [ -f /home/edwin.chen/bin/git-prompt.sh ]; then
-    . /home/edwin.chen/bin/git-prompt.sh
+if [ -f /home/edwin.chen/.git-prompt.sh ]; then
+    . /home/edwin.chen/.git-prompt.sh
     GIT_PS1_SHOWDIRTYSTATE=true
     GIT_PS1_SHOWCOLORHINTS=true
     GIT_PS1_UNTRACKEDFILES=true
 fi
-
-#if [ -f .profile ]; then
-#    . .profile
-#fi
 
 if [ ! -z "$TERMCAP" ] && [ "$TERM" == "screen" ]; then
     export TERMCAP=$(echo $TERMCAP | sed -e 's/Co#8/Co#256/g')
@@ -47,12 +44,11 @@ export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
 export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
 export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
 export APCA_API_DATA_URL="https://data.alpaca.markets"
-export DISPLAY="`grep nameserver /etc/resolv.conf | sed 's/nameserver //'`:0"
 export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:/home/edwin.chen/bin:/home/edwin.chen/bin/nvim/bin:/usr/local/bin$PATH"
+export PATH=".:/home/edwin.chen/bin:/home/edwin.chen/bin/nvim/bin:/usr/local/bin:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 #export VALGRIND_LIB=~echen/bin
@@ -60,41 +56,16 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
-#export SNAP_ROOT_DIR=/lhome/snap
-#export TRADER_REPO_DIR=/lhome/trader-repo
+#PATH
+pathedit -p '~edwin.chen/.local/gcc/bin'
+pathedit -p '~edwin.chen/.local/bin'
+pathedit -p '~edwin.chen/bin/nvim/bin'
+pathedit -p '~edwin.chen/bin'
+pathedit -p '.'
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
 export LESS='-R -Q'
-
-pskill()
-{
-        local pid
-
-        pid=$(ps ax | grep $1 | grep -v grep | awk '{ print $1 }')
- #       echo -n "killing $1 (process $pid)..."
-        /bin/kill -s SIGTERM $pid
-        /bin/kill -s SIGKILL $pid
-        echo "slaughtered."
-}
-
-clonesnapbranch()
-{
-    git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git "$1"
-    cd "$1"
-    /bin/ls
-    git checkout -b "$1"
-    git status
-}
-
-mergemaster()
-{
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    git checkout master
-    git pull --rebase
-    git checkout $BRANCH
-    git merge -m 'merge with master' master
-}
 
 #LS_COLORS base
 LS_COLORS="no=00:fi=00:di=01;33:ln=01;36:pi=40;33:so=01;35:bd=44;32:cd=44;33:ex=01:or=01;05;37;41:mi=01;05;37;41"
@@ -200,103 +171,6 @@ HISTFILESIZE=500000
 #export LBM_MONITOR_TRANSPORT=lbm
 
 #for N in `seq 78 106`; do HOST=ng$N; echo -n $HOST ""; ssh $HOST grep ^SELINUX= /etc/selinux/config; done
-
-function extract()      # Handy Extract Program
-{
-    if [ -f $1 ] ; then
-        case $1 in
-            *.tar.bz2)   tar xvjf $1     ;;
-            *.tar.gz)    tar xvzf $1     ;;
-            *.bz2)       bunzip2 $1      ;;
-            *.rar)       unrar x $1      ;;
-            *.gz)        gunzip $1       ;;
-            *.tar)       tar xvf $1      ;;
-            *.tbz2)      tar xvjf $1     ;;
-            *.tgz)       tar xvzf $1     ;;
-            *.zip)       unzip $1        ;;
-            *.Z)         uncompress $1   ;;
-            *.7z)        7z x $1         ;;
-            *)           echo "'$1' cannot be extracted via >extract<" ;;
-        esac
-    else
-        echo "'$1' is not a valid file!"
-    fi
-}
-
-function cpsh {
-  scp -rp chi-239:/home/edwin.chen/.ssh           /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.aliases       /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.bashrc        /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.bin           /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.cgdb          /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.dir_colors    /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.git           /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.gitconfig     /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.profile       /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.prompt        /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.screenrc      /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.uncrustify    /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/.vimrc         /home/edwin.chen
-  scp -rp chi-239:/home/edwin.chen/bin            /home/edwin.chen/bin
-}
-
-function rg() {
-  grep -r --exclude=\*/.svn/\* --exclude=\*.swp --include $2 $1 .
-}
-
-function u() {
-  uncrustify -c /home/edwin.chen/utils/uncrustify.cfg -l CPP --replace $1
-}
-
-function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
-function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
-
-function mydf()         # Pretty-print of 'df' output.
-{                       # Inspired by 'dfc' utility.
-    for fs ; do
-
-        if [ ! -d $fs ]
-        then
-          echo -e $fs" :No such file or directory" ; continue
-        fi
-
-        local info=( $(command df -P $fs | awk 'END{ print $2,$3,$5 }') )
-        local free=( $(command df -Pkh $fs | awk 'END{ print $4 }') )
-        local nbstars=$(( 20 * ${info[1]} / ${info[0]} ))
-        local out="["
-        for ((j=0;j<20;j++)); do
-            if [ ${j} -lt ${nbstars} ]; then
-               out=$out"*"
-            else
-               out=$out"-"
-            fi
-        done
-        out=${info[2]}" "$out"] ("$free" free on "$fs")"
-        echo -e $out
-    done
-}
-
-function ii()   # Get current host related info.
-{
-    echo -e "\nYou are logged on ${BRed}$HOST"
-    echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
-    echo -e "\n${BRed}Users logged on:$NC " ; w -hs |
-             cut -d " " -f1 | sort | uniq
-    echo -e "\n${BRed}Current date :$NC " ; date
-    echo -e "\n${BRed}Machine stats :$NC " ; uptime
-    echo -e "\n${BRed}Memory stats :$NC " ; free
-    echo -e "\n${BRed}Diskspace :$NC " ; mydf / $HOME
-    echo -e "\n${BRed}Local IP Address :$NC" ; my_ip
-    echo -e "\n${BRed}Open connections :$NC "; netstat -pan --inet;
-    echo
-}
-
-function l()
-{
-  exa -alhmF --git --group-directories-first  --color-scale $1
-  p=`realpath ${1:-.}`
-  echo -e "`realpath $p/..`/\e$BBlue`basename $p`\e$Color_Off"
-}
 
 # Enable options:
 shopt -s cdspell

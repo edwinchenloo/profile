@@ -1,40 +1,45 @@
 
 # User specific aliases and functions
 alias a=alias
-bq() { tar cvfz ise/$1.`date +%m%d`.tgz $1/*.cpp $1/*.h $1/*.pr* $1/ng/*.cpp $1/ng/*.h $1/ng/*.pr* $1/ise/*.h $1/ise/*.cpp $1/ise/*.pr* --exclude moc*.cpp; }
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+alias .3="cd ../../.."
+alias .4="cd ../../../.."
+alias .5="cd ../../../../.."
 alias arch='cat /sys/devices/cpu/caps/pmu_name;gcc -march=native -Q --help=target|grep march;/usr/bin/arch'
-alias bd=". bd -si"
-alias cdxr="cd xr-snap/src/xr/snap"
+alias cds="cd $SNAP_ROOT_DIR/xr-snap/src/xr/snap"
+alias cdma="cd $XR_MONOREPO_ROOT/cpp/apps"
+alias cdml="cd $XR_MONOREPO_ROOT/cpp/libs"
+alias cdtd="cd ~/trader_data/options/servers/`hostname -s`"
+alias cpv='rsync -ah --info=progress2'
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
-alias clonedataservices="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
-alias clonemonorepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
-alias clonesnap="git clone http://edwin.chen@10.10.103.239:7990/scm/snap/snap.git"
-alias clonetraderdata="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
-alias clonetraderrepo="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2.git trader-repo"
+alias cloneds="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
+alias clonem="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
+alias clones="git clone ssh://git@stash.xrtrading.local:7999/snap/snap.git"
+alias clonetd="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
+alias clonet="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2.git trader-repo"
 alias cmaked='cmake -DCMAKE_BUILD_TYPE=DEBUG ..'
 alias cmaker='cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO ..'
-alias du='du -kh'    # Makes a more readable output.
+alias diff='colordiff'
 alias df='df -kTh'
-alias f='find /lhome/HO-2331/xr-snap/src/xr/snap /lhome/HO-2331/ext/monorepo/cpp -type f -name '
-alias fhcp=' echo \'\''welcome2xr\!\'\''|sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/fh/src/fh /usr/local/xr/bin/fh.edwin'
-alias gc="git commit -a -m"
-alias gd="git diff --ignore-space-at-eol -b -w --ignore-blank-lines"
-#alias gdb='~/bin/gdb --data-directory=~/bin/data-directory '
-alias gitroot='cd $(git rev-parse --show-toplevel)'
+alias du='du -kh --max-depth=1'    # Makes a more readable output.
+alias fd='find . -type d -name '
+alias ff='find . -type f -name '
+alias gd='git diff --ignore-space-at-eol -b -w --ignore-blank-lines'
 alias gl='git log --all --graph --decorate'
-alias gpp='git pull && git push'
+alias gpp='git pull; git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)'
 alias grb='git checkout master && git pull && git checkout - && git rebase -'
+alias greset='git fetch origin && git reset --hard origin/master'
+alias groot='cd $(git rev-parse --show-toplevel)'
+alias gs='git status'
 alias gsc='git config --global credential.helper store'
 alias hg='history|grep $1'
 alias h='history'
-alias initsnap="ln -s `pwd`/buildtools/pre-commit -t .git/hooks"
 alias j='jobs -l'
+alias ldpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lessf='/usr/bin/less +F '
-alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias ls='/bin/ls --color=auto '
 #alias make=~/bin/pretty_make.py
@@ -44,39 +49,30 @@ alias m16='make -j 16'
 alias m24='make -j 24'
 alias monorepo='cd ${XR_MONOREPO_ROOT}/cpp/libs'
 alias ms='python -m xrmake2 -d -j 12 -v'
-alias mm='xrbuild -rv debug'
-alias mmt='xrbuild --nocg --nopu test'
-alias mmts='xrbuild -rv test'
+alias mm='xrbuild -v debug'
+alias mmt='xrbuild -v test'
 alias mt=ms
-alias mu='python -m maketraderunit -rd --rocket -v -d -j 12'
-alias ogrelogs='ll -ltrd /opt/xr/logs/ogre/*'
-alias optbinrel='cd /home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress'
-alias optbindeb='cd /home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress'
-alias optcpdeb='sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/debug/xr-snap/src/xr/snap/apps/optaggress/optaggress   /home/snaptrader/optaggress.edwin'
-alias optcprel='sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /home/snaptrader/optaggress.edwin'
-alias optsrc='cd /home/edwin.chen/linux/snap/xr-snap/src/xr/snap/apps/optaggress'
-alias optsync='rsync -avzh --include="*/" --include="*.cpp" --include="*.hpp" --exclude="*" edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap /home/edwin.chen/linux'
+alias mu='python -m maketraderunit -d --rocket -v -d -j 12'
 alias p='psql --host=localhost --username=edwinc  --dbname=trading -W'
 alias path='echo -e ${PATH//:/\\n}'
 #alias pmake="python -m xrmake -j `distcc -j`"
 alias pmake="python -m xrmake -j 20"
-alias po='export LD_PRELOAD=/usr/lib64/libonload.so'
+alias ports='netstat -tulanp'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
-alias qm='use x3p_b-1.2-dev && unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";spack'
-alias qs='./quickstart.sh && source setupEnv.sh;spack;/usr/bin/usepackage openonload_b_10_201811-u1'
+alias pscpu10='ps auxf|sort -nr -k 3|head -10'
+alias psmem10='ps auxf|sort -nr -k 4|head -10'
+alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/edwin.chen/.bashrc'
+alias qs='./quickstart.sh && source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
+alias qsl='source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
-alias rmbin='find -name '\''*.bin'\'' -print0 |xargs -0 rm -f'
-alias rmcores='rm -f /opt/cores/*core*'
-alias ras='/opt/xr/AuctionServer/asdev.sh start'
-alias rogre='/opt/xr/Ogre/ogredev.sh start'
-alias rsim='/opt/xr/ExchangeSim/ExchangeSim.sh start'
+alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '
+alias sa='source /home/edwin.chen/.aliases'
+alias sb='source /home/edwin.chen/.bashrc'
 alias sc='~/start_container.sh'
-alias scpo="sudo scp edwin.chen@chi-ldbd239:/home/edwin.chen/linux/snap/bin/release/xr-snap/src/xr/snap/apps/optaggress/optaggress /usr/local/xr/bin"
-alias setupsor='source /opt/smds/env.sh;source /opt/sor/env.sh;cd /opt/sor'
-#alias syn='synergyc -1 --no-camp edwin-laptop'
 alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
-alias snap='cd ${SNAP_ROOT_DIR}/xr-snap/src/xr/snap'
+alias snap='cd xr-snap/src/xr/snap'
+alias snaptrader='ssh -i /home/edwin.chen/.ssh/edwin.chen.pub snaptrader@$HOSTNAME'
 alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
 alias svim='source /shared/spack/opt/profile/spack.sh;module load vim;module load gdb;module load cgdb;export VIMRUNTIME="/shared/spack/opt/spack/linux-centos6-core2/gcc-8.3.0/vim-8.1.2141-tvxnxo7ub4owep5fkgtt3yshx35kezx4/share/vim/vim81/"'
@@ -88,8 +84,11 @@ alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
 alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
 alias tree='tree -Csuh'
 alias u='uncrustify --no-backup -c ~/.uncrustify/uncrustify.cfg -l cpp '
-alias updatealiases='scp edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
+alias updatealiases='scp -p edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
 alias vi='vim'
+alias via='vi ~/.aliases'
+alias xl='ls -ltrd /opt/xr/logs/*'
+alias xrj='/opt/xr/xrj/installed/dist/scripts/xrj $@'
 alias xrmake='python -m xrmake'
 
 # Aliases are available on non interactive shells
@@ -114,4 +113,249 @@ else
     alias ll='ls -l -tr --full-time'
 fi
 
+_exe()
+{
+    [ $1 == on  ] && { set -x; return; } 2>/dev/null
+    [ $1 == off ] && { set +x; return; } 2>/dev/null
+    echo + "$@"
+    "$@"
+}
+
+exe()
+{
+    { _exe "$@"; } 2>/dev/null
+}
+
+function duc() {
+    TXT_BLD=$(tput bold)
+    TXT_RED=$(tput setaf 1)
+    TXT_YLW=$(tput setaf 3)
+    TXT_WARN="${TXT_BLD}${TXT_YLW}"
+    TXT_ERR="${TXT_BLD}${TXT_RED}"
+    TXT_RST=$(tput sgr0)
+    IFS= mapfile -t disk < <(/usr/bin/df -h | tail -n +2)
+    for line in "${disk[@]}"; do
+        USAGE=$(echo $line | awk '{print $5/1}')
+        if [[ "$USAGE" -gt '90' ]]; then
+            echo "${TXT_ERR}$line${TXT_RST}"
+        elif [[ "$USAGE" -gt '80' ]]; then
+            echo "${TXT_WARN}$line${TXT_RST}"
+        else
+            echo "$line"
+        fi
+    done
+}
+
+function extract()      # Handy Extract Program
+{
+    if [ -f $1 ] ; then
+        case $1 in
+            *.tar.bz2)   tar xvjf $1     ;;
+            *.tar.gz)    tar xvzf $1     ;;
+            *.bz2)       bunzip2 $1      ;;
+            *.rar)       unrar x $1      ;;
+            *.gz)        gunzip $1       ;;
+            *.tar)       tar xvf $1      ;;
+            *.tbz2)      tar xvjf $1     ;;
+            *.tgz)       tar xvzf $1     ;;
+            *.zip)       unzip $1        ;;
+            *.Z)         uncompress $1   ;;
+            *.7z)        7z x $1         ;;
+            *)           echo "'$1' cannot be extracted via >extract<" ;;
+        esac
+    else
+        echo "'$1' is not a valid file!"
+    fi
+}
+
+function gc()
+{
+    if [ $# -eq 0 ]
+      then
+        echo "usage:  gc 'git commit message'"
+        return
+    fi
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    COMMENT="$1"
+    [[ "${COMMENT}" == \"*\" || "${COMMENT}" == \'*\' ]] && COMMENT="${$1:1:-1}"
+    git commit -a -m "$BRANCH:$COMMENT"
+    if [ $BRANCH == "master" ]; then
+        echo "***** Warning:commited to master *****" >&2
+    fi
+}
+
+function ii()   # Get current host related info.
+{
+    echo -e "\nYou are logged on ${BRed}$HOST"
+    echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
+    echo -e "\n${BRed}Users logged on:$NC " ; w -hs |
+             cut -d " " -f1 | sort | uniq
+    echo -e "\n${BRed}Current date :$NC " ; date
+    echo -e "\n${BRed}Machine stats :$NC " ; uptime
+    echo -e "\n${BRed}Memory stats :$NC " ; free
+    echo -e "\n${BRed}Diskspace :$NC " ; mydf / $HOME
+    echo -e "\n${BRed}Local IP Address :$NC" ; my_ip
+    echo -e "\n${BRed}Open connections :$NC "; netstat -pan --inet;
+    echo
+}
+
+function l()
+{
+  exa -alhmF --git --group-directories-first  --color-scale $1
+  p=`realpath ${1:-.}`
+  echo -e "`realpath $p/..`/\e$BBlue`basename $p`\e$Color_Off"
+}
+
+ldpathedit()
+{
+    [ -z "$2" ] && return 2
+    LD_LIBRARY_PATH=$(printf ":$LD_LIBRARY_PATH:" | sed "s:\:$2\::\::g")
+    case $1 in
+    -p ) LD_LIBRARY_PATH=$2$LD_LIBRARY_PATH ;;  # Prepend
+    -a ) LD_LIBRARY_PATH=$LD_LIBRARY_PATH$2 ;;  # Append
+    -r ) ;;                                     # Remove
+    * ) return 2 ;;
+    esac
+    LD_LIBRARY_PATH=$(printf "$LD_LIBRARY_PATH" | tr -s :) LD_LIBRARY_PATH=${LD_LIBRARY_PATH#:} LD_LIBRARY_PATH=${LD_LIBRARY_PATH%:}
+}
+
+function llogs()
+{
+    if [[ $# -gt 0 ]];
+    then
+        ll -d /opt/xr/logs/$1;
+    else
+        ll -d /opt/xr/logs/*;
+    fi
+}
+
+function mergemaster()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git submodule update";                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git merge -m ${BRANCH}:merge_with_master master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+}
+
+function mydf()         # Pretty-print of 'df' output.
+{                       # Inspired by 'dfc' utility.
+    for fs ; do
+
+        if [ ! -d $fs ]
+        then
+          echo -e $fs" :No such file or directory" ; continue
+        fi
+
+        local info=( $(command df -P $fs | awk 'END{ print $2,$3,$5 }') )
+        local free=( $(command df -Pkh $fs | awk 'END{ print $4 }') )
+        local nbstars=$(( 20 * ${info[1]} / ${info[0]} ))
+        local out="["
+        for ((j=0;j<20;j++)); do
+            if [ ${j} -lt ${nbstars} ]; then
+               out=$out"*"
+            else
+               out=$out"-"
+            fi
+        done
+        out=${info[2]}" "$out"] ("$free" free on "$fs")"
+        echo -e $out
+    done
+}
+
+function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
+
+pathedit()
+{
+    [ -z "$2" ] && return 2
+    PATH=$(printf ":$PATH:" | sed "s:\:$2\::\::g")
+    case $1 in
+    -p ) PATH=$2$PATH ;;  # Prepend
+    -a ) PATH=$PATH$2 ;;  # Append
+    -r ) ;;               # Remove
+    * ) return 2 ;;
+    esac
+    PATH=$(printf "$PATH" | tr -s :) PATH=${PATH#:} PATH=${PATH%:}
+}
+
+function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
+
+function pskill()
+{
+        local pid
+
+        pid=$(ps ax | grep $1 | grep -v grep | awk '{ print $1 }')
+ #       echo -n "killing $1 (process $pid)..."
+        /bin/kill -s SIGTERM $pid
+        /bin/kill -s SIGKILL $pid
+        echo "slaughtered."
+}
+
 function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|xml|am|py|config)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
+
+function sync() {
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "sync {file} {host}"
+        return
+    fi
+
+    exe scp -pr $1 $2:$1
+}
+
+export xrhosts=( "aur-142" "aur-188" "aur-189" "aur-190" "aur-193" "car-002" "car-033" "car-059" "chi-368" "mah-007" "msp-074" "msp-089" "msp-242" "ny5-014" "ny5-023" "ny5-037" "ny5-038" "ny5-039" "ny5-040" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-133" "ny5-134" "ny5-142" "tx1-077" "tx1-118" "tx1-268" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-679" "tx1-706" )
+
+function _scp() {
+    for h in "${xrhosts[@]}"
+    do
+        sync $1 $h
+    done
+}
+function scpa() {
+    _scp /home/edwin.chen/.aliases
+}
+
+function scpb() {
+    _scp /home/edwin.chen/.bashrc
+}
+
+function scph {
+  sync /home/edwin.chen/.ssh           $1
+  sync /home/edwin.chen/.aliases       $1
+  sync /home/edwin.chen/.bashrc        $1
+  sync /home/edwin.chen/.bin           $1
+  sync /home/edwin.chen/.cgdb          $1
+  sync /home/edwin.chen/.dir_colors    $1
+  sync /home/edwin.chen/.gdb           $1
+  sync /home/edwin.chen/.gdbinit       $1
+  sync /home/edwin.chen/.gitconfig     $1
+  sync /home/edwin.chen/.git-prompt.sh $1
+  sync /home/edwin.chen/.profile       $1
+  sync /home/edwin.chen/.prompt        $1
+  sync /home/edwin.chen/.screenrc      $1
+  sync /home/edwin.chen/.uncrustify    $1
+  sync /home/edwin.chen/.vimrc         $1
+  sync /home/edwin.chen/.vim           $1
+  sync /home/edwin.chen/bin            $1
+}
+
+function scpssh() {
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "scpssh {user} {host}"  # copy pub key into users's .ssh/authorized_keys
+        return
+    fi
+
+    exe ssh-copy-id -f -i id_rsa.pub $1@$2
+}
+
+function scpv() {
+    _scp /home/edwin.chen/.vimrc
+}
+
+function u() {
+    uncrustify -c /home/edwin.chen/utils/uncrustify.cfg -l CPP --replace $1
+}
+

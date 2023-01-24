@@ -63,7 +63,7 @@ set incsearch                 " start searching while typing search string chars
 set ignorecase                " when doing searches
 set laststatus=2
 "set list                      " show invisible characters
-"set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
+set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
 set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
 set nostartofline             " leave my cursor position alone
@@ -72,9 +72,12 @@ set paste noai                " don't autoindent while pasting from clipboard
 set path=.,**
 set path+=/usr/include/**
 "set path+=/lhome/snap/ext/**
-set path+=/lhome/snap/ext/monorepo/dist/relwithdebinfo/include/**
-set path+=/lhome/snap/xr-snap/src/xr/snap/**
-set path+=/lhome/trader-repo/**
+set path+=$SNAP_ROOT_DIR/ext/monorepo/dist/relwithdebinfo/include/**
+set path+=$SNAP_ROOT_DIR/xr-snap/src/xr/snap/**
+set path+=$SNAP_ROOT_DIR/ext/**
+set path+=$TRADER_REPO_DIR/**
+set path+=$XR_MONOREPO_ROOT/cpp/libs/**
+set path+=$XR_MONOREPO_ROOT/**
 set report=0                  " report back number of lines yanked or deleted
 set rtp+=~/.vim/plugged/YouCompleteMe
 set scrolloff=5               " keep at least 5 lines above/below
@@ -102,10 +105,11 @@ set wrap                      " soft wrap long lines
 
 "let g:loaded_youcompleteme = 1
 
-syntax on
-colorscheme archman
+"colorscheme solarized
 " terminal colors
-highlight Normal guibg=black guifg=white
+"highlight Normal guibg=black guifg=white
+syntax on
+hi Normal ctermbg=black ctermfg=white
 
 
 if has('mouse')
@@ -131,6 +135,10 @@ nnoremap <silent> <c-O> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 " Switch buffers
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
+nnoremap <S-m> :MRU<CR>
+
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
 
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
@@ -152,16 +160,24 @@ nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <c
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
 nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
 
-nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m xrmake --print-all-errors -j 3 --enable-onload201811_U1 --debug <cr>
+nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/builds.sh <cr>
 
 "nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -post=AnsiEsc python -u -m xrbuild -rv release <cr>
-nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/mm_noansi.sh debug <cr>
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildm.sh release <cr>
 "nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -d - j 12 <cr>
 
 " dos2unix
 "nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
 nnoremap <silent> <F9> :AsyncStop<CR>
 
+nnoremap <silent> <F11> :call NextColor(-1)<CR>
+nnoremap <silent> <F12> :call NextColor(1)<CR>
+
+if executable('rg')
+  set grepprg=rg\ -H\ --no-heading\ --vimgrep
+  set grepformat=%f:%l:%c:%m
+  let g:ackgrp = 'rg -H --noheading --vimgrep'
+endif
 
 " Write as sudo
 cmap w!! w !sudo tee '%' > /dev/null
@@ -169,33 +185,56 @@ cmap w!! w !sudo tee '%' > /dev/null
 "type :PlugUpdate to update them
 call plug#begin('~/.vim/plugged')
 
-Plug 'sheerun/vim-polyglot'
-Plug 'powerman/vim-plugin-AnsiEsc'
-Plug 'jremmen/vim-ripgrep'
-Plug 'ryanoasis/vim-devicons'
+Plug 'mileszs/ack.vim'
+cnoreabbrev Ack Ack!
+"nnoremap <Leader>a :Ack!<Space>
+nnoremap <Leader>a :Ack <cword><cr>
+
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'vim-airline/vim-airline'
-Plug 'skywind3000/asyncrun.vim'
+if executable('rg')
+  " Use rg in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
+
+  " rg is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+Plug 'jremmen/vim-ripgrep'
 Plug 'jszakmeister/vim-togglecursor'
-Plug 'sheerun/vim-polyglot'
-Plug 'tpope/vim-fugitive'
-Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
-Plug 'ray-x/aurora'
 Plug 'luochen1990/rainbow'
 let g:rainbow_active = 1
-Plug 'thaerkh/vim-indentguides'
-"Plug 'Valloric/YouCompleteMe'
+Plug 'powerman/vim-plugin-AnsiEsc'
+Plug 'rafi/awesome-vim-colorschemes'
+Plug 'ray-x/aurora'
+Plug 'ryanoasis/vim-devicons'
+"Plug 'sheerun/vim-polyglot'
+Plug 'skywind3000/asyncrun.vim'
+"Plug 'adi/vim-indent-rainbow'
+"Plug 'thiagoalessio/rainbow_levels.vim'
+
+Plug 'tpope/vim-fugitive'
+Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
+Plug 'vim-airline/vim-airline-themes'
+Plug 'vim-airline/vim-airline'
+Plug 'Valloric/YouCompleteMe'
+let g:ycm_global_ycm_extra_conf = "~/.vim/plugged/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py"
 "Plug 'Xuyuanp/nerdtree-git-plugin'
 "Plug 'atahabaki/archman-vim'
 "Plug 'jszakmeister/vim-togglecursor'
 "Plug 'lyuts/vim-rtags'
 "Plug 'neoclide/coc.nvim', {'branch':'release'}
-"Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'octol/vim-cpp-enhanced-highlight'
 "Plug 'scrooloose/nerdcommenter'
 "Plug 'scrooloose/nerdtree'
 "Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 
+Plug 'nathanaelkane/vim-indent-guides'
+let g:indent_guides_auto_colors = 0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd guibg=black ctermbg=darkgray
+let g:indent_guides_enable_on_vim_startup = 1
+
 call plug#end()
+
+"let g:airline_section_c = '%{pathshorten(expand(''%:f''))}'
+let g:airline_section_c = '%{expand(''%:F'')}'
 
 
