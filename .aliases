@@ -1,4 +1,10 @@
 
+if [ -f /home/edwin.chen ]; then
+    export USER_EDWIN=edwin.chen
+else
+    export USER_EDWIN=edwinchenloo
+fi
+
 # User specific aliases and functions
 alias a=alias
 alias ..="cd .."
@@ -62,17 +68,17 @@ alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
 alias pscpu10='ps auxf|sort -nr -k 3|head -10'
 alias psmem10='ps auxf|sort -nr -k 4|head -10'
-alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/edwin.chen/.bashrc'
+alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/${USER_EDWIN}/.bashrc'
 alias qs='./quickstart.sh && source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
 alias qsl='source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '
-alias sa='source /home/edwin.chen/.aliases'
-alias sb='source /home/edwin.chen/.bashrc'
+alias sa='source /home/${USER_EDWIN}/.aliases'
+alias sb='source /home/${USER_EDWIN}/.bashrc'
 alias sc='~/start_container.sh'
 alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias snap='cd xr-snap/src/xr/snap'
-alias snaptrader='ssh -i /home/edwin.chen/.ssh/edwin.chen.pub snaptrader@$HOSTNAME'
+alias snaptrader='ssh -i /home/${USER_EDWIN}/.ssh/${USER_EDWIN}.pub snaptrader@$HOSTNAME'
 alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
 alias svim='source /shared/spack/opt/profile/spack.sh;module load vim;module load gdb;module load cgdb;export VIMRUNTIME="/shared/spack/opt/spack/linux-centos6-core2/gcc-8.3.0/vim-8.1.2141-tvxnxo7ub4owep5fkgtt3yshx35kezx4/share/vim/vim81/"'
@@ -84,7 +90,7 @@ alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
 alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
 alias tree='tree -Csuh'
 alias u='uncrustify --no-backup -c ~/.uncrustify/uncrustify.cfg -l cpp '
-alias updatealiases='scp -p edwin.chen@chi-ldbd239:/home/edwin.chen/.aliases ~/'
+alias updatealiases='scp -p ${USER_EDWIN}@chi-ldbd239:/home/${USER_EDWIN}/.aliases ~/'
 alias vi='vim'
 alias via='vi ~/.aliases'
 alias xl='ls -ltrd /opt/xr/logs/*'
@@ -102,7 +108,7 @@ then
 elif [ -e /lib/terminfo/x/xterm-256color ] ||
      [ -e /usr/share/terminfo/x/xterm-256color ]
 then
-    eval `dircolors /home/edwin.chen/.dir_colors`
+    eval `dircolors /home/${USER_EDWIN}/.dir_colors`
 
     alias grep='/bin/grep --color=tty '
     alias ll='ls -l -tr --full-time'
@@ -314,31 +320,31 @@ function _scp() {
     done
 }
 function scpa() {
-    _scp /home/edwin.chen/.aliases
+    _scp /home/${USER_EDWIN}/.aliases
 }
 
 function scpb() {
-    _scp /home/edwin.chen/.bashrc
+    _scp /home/${USER_EDWIN}/.bashrc
 }
 
 function scph {
-  sync /home/edwin.chen/.ssh           $1
-  sync /home/edwin.chen/.aliases       $1
-  sync /home/edwin.chen/.bashrc        $1
-  sync /home/edwin.chen/.bin           $1
-  sync /home/edwin.chen/.cgdb          $1
-  sync /home/edwin.chen/.dir_colors    $1
-  sync /home/edwin.chen/.gdb           $1
-  sync /home/edwin.chen/.gdbinit       $1
-  sync /home/edwin.chen/.gitconfig     $1
-  sync /home/edwin.chen/.git-prompt.sh $1
-  sync /home/edwin.chen/.profile       $1
-  sync /home/edwin.chen/.prompt        $1
-  sync /home/edwin.chen/.screenrc      $1
-  sync /home/edwin.chen/.uncrustify    $1
-  sync /home/edwin.chen/.vimrc         $1
-  sync /home/edwin.chen/.vim           $1
-  sync /home/edwin.chen/bin            $1
+  sync /home/${USER_EDWIN}/.ssh           $1
+  sync /home/${USER_EDWIN}/.aliases       $1
+  sync /home/${USER_EDWIN}/.bashrc        $1
+  sync /home/${USER_EDWIN}/.bin           $1
+  sync /home/${USER_EDWIN}/.cgdb          $1
+  sync /home/${USER_EDWIN}/.dir_colors    $1
+  sync /home/${USER_EDWIN}/.gdb           $1
+  sync /home/${USER_EDWIN}/.gdbinit       $1
+  sync /home/${USER_EDWIN}/.gitconfig     $1
+  sync /home/${USER_EDWIN}/.git-prompt.sh $1
+  sync /home/${USER_EDWIN}/.profile       $1
+  sync /home/${USER_EDWIN}/.prompt        $1
+  sync /home/${USER_EDWIN}/.screenrc      $1
+  sync /home/${USER_EDWIN}/.uncrustify    $1
+  sync /home/${USER_EDWIN}/.vimrc         $1
+  sync /home/${USER_EDWIN}/.vim           $1
+  sync /home/${USER_EDWIN}/bin            $1
 }
 
 function scpssh() {
@@ -352,10 +358,10 @@ function scpssh() {
 }
 
 function scpv() {
-    _scp /home/edwin.chen/.vimrc
+    _scp /home/${USER_EDWIN}/.vimrc
 }
 
 function u() {
-    uncrustify -c /home/edwin.chen/utils/uncrustify.cfg -l CPP --replace $1
+    uncrustify -c /home/${USER_EDWIN}/utils/uncrustify.cfg -l CPP --replace $1
 }
 

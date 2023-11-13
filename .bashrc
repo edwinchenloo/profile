@@ -3,8 +3,14 @@
 #if not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
+if [ -f /home/edwin.chen ]; then
+    USER_EDWIN=edwin.chen
+else
+    USER_EDWIN=edwinchenloo
+fi
+
 # User specific aliases and functions
-source /home/edwin.chen/.aliases
+source /home/${USER_EDWIN}/.aliases
 
 # Aliases are available on non interactive shells
 shopt -s expand_aliases
@@ -22,12 +28,12 @@ if [ -f /opt/qt55/bin/qt55-env.sh ]; then
     source /opt/qt55/bin/qt55-env.sh
 fi
 
-ldpathedit -p '/home/edwin.chen/.local/gcc/lib64'
+ldpathedit -p '/home/${USER_EDWIN}/.local/gcc/lib64'
 ldpathedit -p '.'
 
 # This is to have the git branch in my prompt
-if [ -f /home/edwin.chen/.git-prompt.sh ]; then
-    . /home/edwin.chen/.git-prompt.sh
+if [ -f /home/${USER_EDWIN}/.git-prompt.sh ]; then
+    . /home/${USER_EDWIN}/.git-prompt.sh
     GIT_PS1_SHOWDIRTYSTATE=true
     GIT_PS1_SHOWCOLORHINTS=true
     GIT_PS1_UNTRACKEDFILES=true
@@ -37,7 +43,7 @@ if [ ! -z "$TERMCAP" ] && [ "$TERM" == "screen" ]; then
     export TERMCAP=$(echo $TERMCAP | sed -e 's/Co#8/Co#256/g')
 fi
 
-source /home/edwin.chen/.prompt
+source /home/${USER_EDWIN}/.prompt
 
 export CDPATH='.:/lhome/snap/ext/monorepo/cpp/apps:/lhome/snap/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
 export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
@@ -48,7 +54,7 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:/home/edwin.chen/bin:/home/edwin.chen/bin/nvim/bin:/usr/local/bin:$PATH"
+export PATH=".:/home/${USER_EDWIN}/bin:/home/${USER_EDWIN}/bin/nvim/bin:/usr/local/bin:$PATH"
 #export CXX=/usr/bin/g++
 #export CC=/usr/bin/gcc
 #export VALGRIND_LIB=~echen/bin
@@ -57,10 +63,10 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 #PATH
-pathedit -p '~edwin.chen/.local/gcc/bin'
-pathedit -p '~edwin.chen/.local/bin'
-pathedit -p '~edwin.chen/bin/nvim/bin'
-pathedit -p '~edwin.chen/bin'
+pathedit -p '~${USER_EDWIN}/.local/gcc/bin'
+pathedit -p '~${USER_EDWIN}/.local/bin'
+pathedit -p '~${USER_EDWIN}/bin/nvim/bin'
+pathedit -p '~${USER_EDWIN}/bin'
 pathedit -p '.'
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
