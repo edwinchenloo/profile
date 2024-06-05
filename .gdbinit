@@ -7,8 +7,10 @@ set history save on
 set host-charset UTF-8
 
 #allow printing of long char array values
-set print elements 4096
+set print elements 64
+set print array-indexes on
 set print static off
+set python print-stack full
 
 #set style enabled off
 catch throw
@@ -17,10 +19,19 @@ catch throw
 #break __sanitizer::Die
 #break __asan::ReportGenericError
 #directory /lhome/snap/ext/monorepo
-directory /lhome/monorepo
+directory /home/edwin.chen/snap/ext/monorepo
 
 python
+
+import ast
+import io
+import itertools
+import math
+import os
+import re
+import struct
 import sys
+import traceback
 sys.path.insert(0, '/home/edwin.chen/.gdb/printers/python')
 from libstdcxx.v6.printers import register_libstdcxx_printers
 register_libstdcxx_printers (None)

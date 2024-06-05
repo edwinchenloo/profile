@@ -3,7 +3,7 @@
 #if not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
-if [ -f /home/edwin.chen ]; then
+if [ -d /home/edwin.chen ]; then
     USER_EDWIN=edwin.chen
 else
     USER_EDWIN=edwinchenloo
@@ -16,7 +16,7 @@ source /home/${USER_EDWIN}/.aliases
 shopt -s expand_aliases
 
 # Source global definitions
-if [ -f /etc/bashrc ]; then
+if [ -d /etc/bashrc ]; then
     . /etc/bashrc
 fi
 
@@ -54,19 +54,15 @@ export EDITOR=vim
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
-export PATH=".:/home/${USER_EDWIN}/bin:/home/${USER_EDWIN}/bin/nvim/bin:/usr/local/bin:$PATH"
-#export CXX=/usr/bin/g++
-#export CC=/usr/bin/gcc
-#export VALGRIND_LIB=~echen/bin
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 #PATH
-pathedit -p '~${USER_EDWIN}/.local/gcc/bin'
-pathedit -p '~${USER_EDWIN}/.local/bin'
-pathedit -p '~${USER_EDWIN}/bin/nvim/bin'
-pathedit -p '~${USER_EDWIN}/bin'
+pathedit -p ~${USER_EDWIN}/.local/gcc/bin
+pathedit -p ~${USER_EDWIN}/.local/bin
+pathedit -p ~${USER_EDWIN}/bin/nvim-linux64/bin
+pathedit -p ~${USER_EDWIN}/bin
 pathedit -p '.'
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
@@ -183,6 +179,8 @@ shopt -s cdspell
 shopt -s cdable_vars
 shopt -s checkhash
 shopt -s checkwinsize
+# multi-line commands are saved to the history with embedded semicolons
+shopt -s cmdhist
 shopt -s sourcepath
 shopt -s no_empty_cmd_completion
 shopt -s cmdhist

@@ -1,5 +1,5 @@
 
-if [ -f /home/edwin.chen ]; then
+if [ -d /home/edwin.chen ]; then
     export USER_EDWIN=edwin.chen
 else
     export USER_EDWIN=edwinchenloo
@@ -31,6 +31,8 @@ alias cmaker='cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO ..'
 alias diff='colordiff'
 alias df='df -kTh'
 alias du='du -kh --max-depth=1'    # Makes a more readable output.
+alias dul='du -ah . | sort -rh | head -20'
+alias dulf='ls -1Rhs | sed -e "s/^ *//" | grep "^[0-9]" | sort -hr | head -n20'
 alias fd='find . -type d -name '
 alias ff='find . -type f -name '
 alias gd='git diff --ignore-space-at-eol -b -w --ignore-blank-lines'
@@ -49,6 +51,7 @@ alias lessf='/usr/bin/less +F '
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias ls='/bin/ls --color=auto '
 #alias make=~/bin/pretty_make.py
+alias mamba='. /shared/mamba/profile/mmm.sh'
 alias m='make -j 16'
 alias m8='make -j 8'
 alias m16='make -j 16'
@@ -58,7 +61,7 @@ alias ms='python -m xrmake2 -d -j 12 -v'
 alias mm='xrbuild -v debug'
 alias mmt='xrbuild -v test'
 alias mt=ms
-alias mu='python -m maketraderunit -d --rocket -v -d -j 12'
+alias mu='python -m maketraderunit -d --rocket -v -d -j 2'
 alias p='psql --host=localhost --username=edwinc  --dbname=trading -W'
 alias path='echo -e ${PATH//:/\\n}'
 #alias pmake="python -m xrmake -j `distcc -j`"
@@ -68,9 +71,11 @@ alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
 alias pscpu10='ps auxf|sort -nr -k 3|head -10'
 alias psmem10='ps auxf|sort -nr -k 4|head -10'
-alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && export PATH=~/bin:$PATH;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/${USER_EDWIN}/.bashrc'
+alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && pathedit -p ~/bin;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/edwin.chen/.bashrc'
 alias qs='./quickstart.sh && source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
 alias qsl='source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
+alias qtr='export TRADER_ROOT_DIR=`pwd`; export TRADER_REPO_DIR=${TRADER_ROOT_DIR}; export SNAP_ROOT_DIR=${TRADER_ROOT_DIR}/../snap;export PYTHONPATH="$SNAP_ROOT_DIR/scripts:$TRADER_ROOT_DIR/scripts"'
+alias rmcore='rm core.[0-9]*'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '
 alias sa='source /home/${USER_EDWIN}/.aliases'
@@ -80,12 +85,12 @@ alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; mo
 alias snap='cd xr-snap/src/xr/snap'
 alias snaptrader='ssh -i /home/${USER_EDWIN}/.ssh/${USER_EDWIN}.pub snaptrader@$HOSTNAME'
 alias spack='source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
-alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";export PATH=~/bin:$PATH;spack'
+alias ss='source setupEnv.sh;export DISTCC_HOSTS="localhost";pathedit -p ~/bin;spack'
 alias svim='source /shared/spack/opt/profile/spack.sh;module load vim;module load gdb;module load cgdb;export VIMRUNTIME="/shared/spack/opt/spack/linux-centos6-core2/gcc-8.3.0/vim-8.1.2141-tvxnxo7ub4owep5fkgtt3yshx35kezx4/share/vim/vim81/"'
 alias syn='synergyc -d DEBUG2 -n chi-ldbd239.xrtrading.local -l /tmp/synergy.log chi-wdbd238'
 alias synctime='sudo hwclock -s'
 alias sysadmin='sudo su -l sysadmin'
-alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cjvf $1.tbz $1'
+alias tarc='tar --exclude='.git' --exclude='build' --exclude='.vs' -cJf $1.tgz $1'
 alias tcpport='sudo /usr/sbin/tcpdump -i eth0 -A -vvv -X src port $1'
 alias tcpudp='sudo /usr/sbin/tcpdump -nni eth1 host $1'
 alias tree='tree -Csuh'
@@ -93,8 +98,16 @@ alias u='uncrustify --no-backup -c ~/.uncrustify/uncrustify.cfg -l cpp '
 alias updatealiases='scp -p ${USER_EDWIN}@chi-ldbd239:/home/${USER_EDWIN}/.aliases ~/'
 alias vi='vim'
 alias via='vi ~/.aliases'
+alias xdl='export DISPLAY=XRRM-LT117:0.0'   # laptop
+alias xdo='export DISPLAY=chi-wdbd002:0.0'  # office desktop
+alias xdv='export DISPLAY=msp-wdvd428:0.0'  # vmware horizon
 alias xl='ls -ltrd /opt/xr/logs/*'
-alias xrj='/opt/xr/xrj/installed/dist/scripts/xrj $@'
+if [ -f "/opt/xr/xrj/installed/dist/scripts/xrj" ]; then
+    alias xrj='unset PYTHONPATH; export XR_SOFTWARE_FOLDER=/opt/xr/xrj/`cat /shared/projects/TOG/xrj_version`; /shared/mamba/micromamba/envs/xr-sw-2209/bin/python3 $XR_SOFTWARE_FOLDER/dist/scripts/xrj $@'
+else
+    alias xrj='ssh msp-074 xrj $@'
+fi
+alias xrjd='xrj find -c Index_Options it:0 tn:IndexOptions e:1 -d'
 alias xrmake='python -m xrmake'
 
 # Aliases are available on non interactive shells
@@ -177,9 +190,9 @@ function extract()      # Handy Extract Program
 function gc()
 {
     if [ $# -eq 0 ]
-      then
-        echo "usage:  gc 'git commit message'"
-        return
+    then
+      echo "usage:  gc 'git commit message'"
+      return
     fi
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
     COMMENT="$1"
@@ -190,6 +203,25 @@ function gc()
     fi
 }
 
+function grmb()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "use this while on the git branch to be deleted"
+        return
+    fi
+
+    git checkout master
+    git pull --rebase
+    git branch -d "$BRANCH"
+    git push origin --delete "$BRANCH"
+}
+
+function hb()
+{
+    ssh -i /home/${USER_EDWIN}/.ssh/${USER_EDWIN}.pub snaptrader@chi-lsbp555 '/usr/bin/singularity exec -B /opt/xr -B /home -B /home/snaptrader /opt/xr/containers/centos_6~f27_1.1.0~onload_201811-u1~v_5.6~production.simg /home/snaptrader/trader-data/options/servers/chi-lsbp555/fe-bats-heartbeater.sh'
+}
 function ii()   # Get current host related info.
 {
     echo -e "\nYou are logged on ${BRed}$HOST"
@@ -210,6 +242,13 @@ function l()
   exa -alhmF --git --group-directories-first  --color-scale $1
   p=`realpath ${1:-.}`
   echo -e "`realpath $p/..`/\e$BBlue`basename $p`\e$Color_Off"
+}
+
+function gitshallowcheckout()
+{
+  git remote set-branches origin '*'
+  git fetch -v --depth=1
+  git checkout '$1'
 }
 
 ldpathedit()
@@ -299,7 +338,7 @@ function pskill()
         echo "slaughtered."
 }
 
-function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|xml|am|py|config)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
+function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|lua|xml|am|py|config|cc)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
 
 function sync() {
     if [ -z "$1" ] || [ -z "$2" ]
@@ -308,10 +347,28 @@ function sync() {
         return
     fi
 
-    exe scp -pr $1 $2:$1
+    exe rsync -avptP --delete-excluded $1 "$2:$(dirname $1)"
 }
 
-export xrhosts=( "aur-142" "aur-188" "aur-189" "aur-190" "aur-193" "car-002" "car-033" "car-059" "chi-368" "mah-007" "msp-074" "msp-089" "msp-242" "ny5-014" "ny5-023" "ny5-037" "ny5-038" "ny5-039" "ny5-040" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-133" "ny5-134" "ny5-142" "tx1-077" "tx1-118" "tx1-268" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-679" "tx1-706" )
+export xrhosts=( "aur-142" "aur-188" "aur-189" "aur-190" "aur-193" "car-002" "car-007" "car-026" "car-033" "chi-555" "mah-007" "msp-089" "ny5-014" "ny5-023" "ny5-037" "ny5-038" "ny5-039" "ny5-040" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-101" "ny5-133" "ny5-134" "ny5-142" "tx1-077" "tx1-118" "tx1-268" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-679" "tx1-688" "tx1-706" )
+
+function findfhc() {
+    hs=( "aur-lsbp141" "aur-lsbp188" "aur-lsbp189" "aur-lsbp190" "aur-lsbp193" "car-lsbp002" "car-lsbp007" "car-lsbp033" "car-lsbp059" "chi-lsbp368" "chi-lsbp555" "mah-lsbp007" "msp-lsbp074" "msp-lsbp089" "ny5-lsbp014" "ny5-lsbp023" "ny5-lsbp037" "ny5-lsbp038" "ny5-lsbp039" "ny5-lsbp040" "ny5-lsbp047" "ny5-lsbp057" "ny5-lsbp059" "ny5-lsbp100" "ny5-lsbp101" "ny5-lsbp133" "ny5-lsbp134" "ny5-lsbp142" "tx1-lsbp077" "tx1-lsbp118" "tx1-lsbp268" "tx1-lsbp412" "tx1-lsbp535" "tx1-lsbp551" "tx1-lsbp624" "tx1-lsbp679" "tx1-lsbp688" "tx1-lsbp706" )
+    for h in "${hs[@]}"
+    do
+       echo $h
+       ssh $h "ls -l /home/snaptrader/trader-data/options/servers/${h}/fhc.py"
+    done
+}
+
+
+function _scpvim() {
+    for h in "${xrhosts[@]}"
+    do
+        ssh $h 'rm -rf /home/edwin.chen/.vim'
+        exe rsync -avptP /home/edwin.chen/.vim $h:/home/edwin.chen
+    done
+}
 
 function _scp() {
     for h in "${xrhosts[@]}"
@@ -332,7 +389,9 @@ function scph {
   sync /home/${USER_EDWIN}/.aliases       $1
   sync /home/${USER_EDWIN}/.bashrc        $1
   sync /home/${USER_EDWIN}/.bin           $1
+  sync /home/${USER_EDWIN}/.cargo         $1
   sync /home/${USER_EDWIN}/.cgdb          $1
+  sync /home/${USER_EDWIN}/.config/nvim   $1
   sync /home/${USER_EDWIN}/.dir_colors    $1
   sync /home/${USER_EDWIN}/.gdb           $1
   sync /home/${USER_EDWIN}/.gdbinit       $1

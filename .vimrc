@@ -41,6 +41,7 @@ highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE gui
 highlight MatchParen cterm=bold ctermbg=green ctermfg=black guifg=green guibg=black
 highlight Search guibg='Purple' guifg='NONE'
 
+let mapleader = " "
 set autoindent
 set autoread                   " watch for file changes
 set backspace=indent,eol,start " got backspace?
@@ -54,8 +55,9 @@ set encoding=utf-8
 "set errorformat=%f:%l:%c:%m
 set expandtab                  " expand <tab>s to spaces
 set encoding=utf-8
+scriptencoding utf-8
 set fileformats=unix
-set formatoptions-=cro
+set formatoptions-=acro
 set hidden                    " allow switching buffers without saving it
 set history=500
 set hlsearch                  " highlight searched
@@ -63,7 +65,11 @@ set incsearch                 " start searching while typing search string chars
 set ignorecase                " when doing searches
 set laststatus=2
 "set list                      " show invisible characters
-set listchars=trail:·,extends:>,nbsp:·,tab:»\ ,precedes:<
+set list lcs=tab:»·
+set list lcs+=nbsp:␣
+set list lcs+=trail:·
+set list lcs+=precedes:«
+set list lcs+=extends:»
 set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
 set nostartofline             " leave my cursor position alone
@@ -79,7 +85,6 @@ set path+=$TRADER_REPO_DIR/**
 set path+=$XR_MONOREPO_ROOT/cpp/libs/**
 set path+=$XR_MONOREPO_ROOT/**
 set report=0                  " report back number of lines yanked or deleted
-set rtp+=~/.vim/plugged/YouCompleteMe
 set scrolloff=5               " keep at least 5 lines above/below
 set shiftwidth=4              " spaces for each step
 "set showbreak='¬'             " for wrapped lines
@@ -88,8 +93,9 @@ set showmatch                 " show matching bracket
 set smartcase                 " if pattern includes upper and lower case it is case sensitive, otherwise it is not
 set smartindent
 set smarttab                  " tab and backspace are smart
-set statusline+=%F
 set softtabstop=4             " set virtual tab stop
+set statusline+=%F
+set t_BE=                     " disable bracketed paste mode
 set t_Co=256
 set t_vb=                     " visual bell
 set tabstop=4
@@ -103,9 +109,6 @@ set wildmenu                  " menu has tab completion
 set wildmode=list:longest,full " set wildmenu to list choice
 set wrap                      " soft wrap long lines
 
-"let g:loaded_youcompleteme = 1
-
-"colorscheme solarized
 " terminal colors
 "highlight Normal guibg=black guifg=white
 syntax on
@@ -116,10 +119,6 @@ if has('mouse')
   set mouse=r                   " enble mouse support in console
 endif
 
-"Number of line of output window (e.g. when invoking make)
-let g:asyncrun_open = 20
-
-"map <C-o> :NERDTreeToggle<CR>
 
 "function! Browser ()
 "   let line = getline (".")
@@ -127,10 +126,10 @@ let g:asyncrun_open = 20
 "   exec "!chrome ".line
 "endfunction
 
-" Switch between header and cpp file using Alt-o
+" Switch between header and cpp file using Ctrl-o
 "execute "set <M-o>=o"
-nnoremap <silent> <c-o> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
-nnoremap <silent> <c-O> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+nnoremap <silent> <c-o> :e %:p:s,.hpp$,.X123X,:s,.cpp$,.hpp,:s,.X123X$,.cpp,<CR>
+"nnoremap <silent> <c-O> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
 " Switch buffers
 nnoremap <Tab> :bnext<CR>
@@ -139,6 +138,7 @@ nnoremap <S-m> :MRU<CR>
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
+nnoremap <leader>t <cmd>:term<cr>
 
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
@@ -173,11 +173,11 @@ nnoremap <silent> <F9> :AsyncStop<CR>
 nnoremap <silent> <F11> :call NextColor(-1)<CR>
 nnoremap <silent> <F12> :call NextColor(1)<CR>
 
-if executable('rg')
-  set grepprg=rg\ -H\ --no-heading\ --vimgrep
-  set grepformat=%f:%l:%c:%m
+"if executable('rg')
+  set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
+  set grepformat+=%f:%l:%c:%m
   let g:ackgrp = 'rg -H --noheading --vimgrep'
-endif
+"endif
 
 " Write as sudo
 cmap w!! w !sudo tee '%' > /dev/null
@@ -198,43 +198,60 @@ if executable('rg')
   " rg is fast enough that CtrlP doesn't need to cache
   let g:ctrlp_use_caching = 0
 endif
-Plug 'jremmen/vim-ripgrep'
 Plug 'jszakmeister/vim-togglecursor'
 Plug 'luochen1990/rainbow'
 let g:rainbow_active = 1
 Plug 'powerman/vim-plugin-AnsiEsc'
 Plug 'rafi/awesome-vim-colorschemes'
 Plug 'ray-x/aurora'
+let g:aurora_darker = 1
 Plug 'ryanoasis/vim-devicons'
-"Plug 'sheerun/vim-polyglot'
 Plug 'skywind3000/asyncrun.vim'
-"Plug 'adi/vim-indent-rainbow'
-"Plug 'thiagoalessio/rainbow_levels.vim'
+"Number of line of output window (e.g. when invoking make)
+let g:asyncrun_open = 20
+"let g:asyncrun_encs = 'utf-8'
 
 Plug 'tpope/vim-fugitive'
+nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gc :Gcommit -v -q<CR>
+nnoremap <leader>ga :Gcommit --amend<CR>
+nnoremap <leader>gt :Gcommit -v -q %<CR>
+nnoremap <leader>gd :Gvdiffsplit<CR>
+nnoremap <leader>ge :Gedit<CR>
+nnoremap <leader>gr :Gread<CR>
+nnoremap <leader>gw :Gwrite<CR><CR>
+nnoremap <leader>gl :silent! Glog<CR>
+nnoremap <leader>gp :Ggrep<Space>
+nnoremap <leader>gm :Gmove<Space>
+nnoremap <leader>gb :Git branch<Space>
+nnoremap <leader>go :Git checkout<Space>
+nnoremap <leader>gps :Dispatch! git push<CR>
+nnoremap <leader>gpl :Dispatch! git pull<CR>
 Plug 'vim-syntastic/syntastic', { 'for' : [ 'cpp', 'c', 'h', 'hpp' ] }
 Plug 'vim-airline/vim-airline-themes'
 Plug 'vim-airline/vim-airline'
-Plug 'Valloric/YouCompleteMe'
-let g:ycm_global_ycm_extra_conf = "~/.vim/plugged/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py"
-"Plug 'Xuyuanp/nerdtree-git-plugin'
-"Plug 'atahabaki/archman-vim'
+"let g:airline_section_c = '%{expand(''%:F'')}'
+"Plug 'Valloric/YouCompleteMe'
+""set rtp+=~/.vim/plugged/YouCompleteMe
+"let g:loaded_youcompleteme = 1
+"let g:ycm_global_ycm_extra_conf = "~/.vim/plugged/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py"
 "Plug 'jszakmeister/vim-togglecursor'
-"Plug 'lyuts/vim-rtags'
-"Plug 'neoclide/coc.nvim', {'branch':'release'}
 Plug 'octol/vim-cpp-enhanced-highlight'
-"Plug 'scrooloose/nerdcommenter'
-"Plug 'scrooloose/nerdtree'
-"Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+let g:cpp_posix_standard = 1
 
 Plug 'nathanaelkane/vim-indent-guides'
 let g:indent_guides_auto_colors = 0
-autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd guibg=black ctermbg=darkgray
 let g:indent_guides_enable_on_vim_startup = 1
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=gray5 " ctermbg=gray5
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=black " ctermbg=black
 
+Plug 'yegappan/mru'
+nnoremap <S-m> :MRU<CR>
 call plug#end()
 
-"let g:airline_section_c = '%{pathshorten(expand(''%:f''))}'
-let g:airline_section_c = '%{expand(''%:F'')}'
+packadd termdebug
 
 
