@@ -19,7 +19,8 @@ catch throw
 #break __sanitizer::Die
 #break __asan::ReportGenericError
 #directory /lhome/snap/ext/monorepo
-directory /home/edwin.chen/snap/ext/monorepo
+#directory /home/edwin.chen/snap/ext/monorepo
+#directory /home/edwin.chen/RX-9027
 
 python
 

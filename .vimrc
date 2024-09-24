@@ -1,4 +1,4 @@
-if has("autocmd")
+"if has("autocmd")
    filetype indent on            " Enable filetype-specific indenting
    filetype plugin on            " Enable filetype-specific plugins
 
@@ -6,7 +6,7 @@ if has("autocmd")
 
    " Makefiles require tab characters
    au FileType make set tabstop=4 shiftwidth=4 softtabstop=0 expandtab
-endif
+"endif
 
 filetype on                   " Enable filetype detection
 filetype indent on            " Enable filetype-specific indenting
@@ -74,7 +74,7 @@ set matchtime=5               " blink matching chars for this number of seconds
 set noerrorbells
 set nostartofline             " leave my cursor position alone
 set number                    " line Numbers on gutter
-set paste noai                " don't autoindent while pasting from clipboard
+"set paste noai                " don't autoindent while pasting from clipboard
 set path=.,**
 set path+=/usr/include/**
 "set path+=/lhome/snap/ext/**
@@ -158,12 +158,13 @@ nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <c
 "-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.ModelResponses/build make -j 8 <cr>
 
 "nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
-nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
+"nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
+nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildt.sh <cr>
 
 nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/builds.sh <cr>
 
-"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -post=AnsiEsc python -u -m xrbuild -rv release <cr>
-nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildm.sh release <cr>
+"Nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -post=AnsiEsc python -u -m xrbuild -rv release <cr>
+nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildm.sh <cr>
 "nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -d - j 12 <cr>
 
 " dos2unix

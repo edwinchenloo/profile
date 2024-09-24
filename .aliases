@@ -74,7 +74,7 @@ alias psmem10='ps auxf|sort -nr -k 4|head -10'
 alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && pathedit -p ~/bin;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/edwin.chen/.bashrc'
 alias qs='./quickstart.sh && source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
 alias qsl='source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
-alias qtr='export TRADER_ROOT_DIR=`pwd`; export TRADER_REPO_DIR=${TRADER_ROOT_DIR}; export SNAP_ROOT_DIR=${TRADER_ROOT_DIR}/../snap;export PYTHONPATH="$SNAP_ROOT_DIR/scripts:$TRADER_ROOT_DIR/scripts"'
+alias qtr='export TRADER_ROOT_DIR=`pwd`; export TRADER_REPO_DIR=${TRADER_ROOT_DIR};export PYTHONPATH="$SNAP_ROOT_DIR/scripts:$TRADER_ROOT_DIR/scripts"'
 alias rmcore='rm core.[0-9]*'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '

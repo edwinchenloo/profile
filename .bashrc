@@ -196,3 +196,9 @@ stty erase ^?
 
 
 export LIBGL_ALWAYS_INDIRECT=1
+
+PATH="/home/edwin.chen/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/edwin.chen/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/edwin.chen/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/edwin.chen/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
