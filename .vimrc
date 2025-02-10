@@ -157,15 +157,15 @@ nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <c
 "nnoremap m :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=~/TastyWorksPnL/build make -j 3 <cr>
 "-nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -cwd=/lhome/dd.ModelResponses/build make -j 8 <cr>
 
-"nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python -m xrmake2 -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
-"nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -j 2 -d -v <cr>
+"nnoremap <silent> <F6> :AsyncRun -raw -save=2 -pos=bottom -mode=0 python3 -m xrmake -j 8 --fast-build --enable-debug --enable-onload201811_U1 <cr>
+"nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python3 -m maketraderunit --rocket -j 2 -d -v <cr>
 nnoremap <silent> <F6> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildt.sh <cr>
 
 nnoremap <silent> <F7> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/builds.sh <cr>
 
 "Nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 -post=AnsiEsc python -u -m xrbuild -rv release <cr>
 nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildm.sh <cr>
-"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python -m maketraderunit --rocket -d - j 12 <cr>
+"nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 python3 -m maketraderunit --rocket -d - j 12 <cr>
 
 " dos2unix
 "nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>

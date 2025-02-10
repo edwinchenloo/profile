@@ -2,6 +2,7 @@
 #source ~/.gdb/stl.gdb
 
 #set max-value-size unlimited
+set breakpoint pending on
 set history save on
 #set history size -1
 set host-charset UTF-8
@@ -15,7 +16,7 @@ set python print-stack full
 #set style enabled off
 catch throw
 #catch signal all
-#set directories /lhome/HO-2331/ext/monorepo
+#set directories /home/edwin.chen/snap/ext/monorepo
 #break __sanitizer::Die
 #break __asan::ReportGenericError
 #directory /lhome/snap/ext/monorepo
@@ -40,3 +41,7 @@ end
 
 skip -rfu ^std::
 skip -rfu ^assemblies::AssemblyBase
+
+define unit_test
+    r --gtest_break_on_failure --gtest_catch_exceptions=0 --gtest_filter=$arg0
+end

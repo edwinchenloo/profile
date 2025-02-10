@@ -18,7 +18,7 @@ alias arch='cat /sys/devices/cpu/caps/pmu_name;gcc -march=native -Q --help=targe
 alias cds="cd $SNAP_ROOT_DIR/xr-snap/src/xr/snap"
 alias cdma="cd $XR_MONOREPO_ROOT/cpp/apps"
 alias cdml="cd $XR_MONOREPO_ROOT/cpp/libs"
-alias cdtd="cd ~/trader_data/options/servers/`hostname -s`"
+alias cdtd="cd ~/trader_data/nyopt/configs/`hostname -s`"
 alias cpv='rsync -ah --info=progress2'
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
 alias cloneds="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
@@ -57,15 +57,15 @@ alias m8='make -j 8'
 alias m16='make -j 16'
 alias m24='make -j 24'
 alias monorepo='cd ${XR_MONOREPO_ROOT}/cpp/libs'
-alias ms='python -m xrmake2 -d -j 12 -v'
+alias ms='python3 -m xrmake2 -d -j 12 -v'
 alias mm='xrbuild -v debug'
 alias mmt='xrbuild -v test'
 alias mt=ms
-alias mu='python -m maketraderunit -d --rocket -v -d -j 2'
+alias mu='python3 -m maketraderunit -d --rocket -v -d -j 2'
 alias p='psql --host=localhost --username=edwinc  --dbname=trading -W'
 alias path='echo -e ${PATH//:/\\n}'
-#alias pmake="python -m xrmake -j `distcc -j`"
-alias pmake="python -m xrmake -j 20"
+#alias pmake="python3 -m xrmake -j `distcc -j`"
+alias pmake="python3 -m xrmake -j 20"
 alias ports='netstat -tulanp'
 alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
@@ -80,7 +80,7 @@ alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CM
 alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '
 alias sa='source /home/${USER_EDWIN}/.aliases'
 alias sb='source /home/${USER_EDWIN}/.bashrc'
-alias sc='~/start_container.sh'
+alias sc='./start_container.sh bash'
 alias sm='source .monorepo_profile;source /shared/spack/opt/profile/spack.sh; module load vim; module load gdb; module load cgdb; module load gdbgui/2010'
 alias snap='cd xr-snap/src/xr/snap'
 alias snaptrader='ssh -i /home/${USER_EDWIN}/.ssh/${USER_EDWIN}.pub snaptrader@$HOSTNAME'
@@ -108,7 +108,7 @@ else
     alias xrj='ssh msp-074 xrj $@'
 fi
 alias xrjd='xrj find -c Index_Options it:0 tn:IndexOptions e:1 -d'
-alias xrmake='python -m xrmake'
+alias xrmake='python3 -m xrmake'
 
 # Aliases are available on non interactive shells
 shopt -s expand_aliases
