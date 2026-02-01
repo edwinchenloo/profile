@@ -55,11 +55,15 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
+#include <cstdio>
 #PATH
 pathedit -p ~${USER_EDWIN}/.local/gcc/bin
 pathedit -p ~${USER_EDWIN}/.local/bin
 pathedit -p ~${USER_EDWIN}/bin/nvim-linux64/bin
 pathedit -p ~${USER_EDWIN}/bin
+if [ -f /opt/nvim-linux64/bin/nvim ]; then
+  pathedit -p /opt/nvim-linux64/bin
+fi
 pathedit -p '.'
 
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
@@ -194,10 +198,15 @@ stty erase ^?
 
 export LIBGL_ALWAYS_INDIRECT=1
 
-PATH="/home/edwin.chen/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PATH="$HOME/perl5/bin${PATH:+:${PATH}}";
+PATH="${PATH}:/opt/nvim";
+export PATH;
 PERL5LIB="/home/edwin.chen/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/edwin.chen/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/edwin.chen/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
 . "/home/edwin.chen/.local/share/bob/env/env.sh"
-. "/home/edwin.chen/.local/share/bob/env/env.sh"
+. "$HOME/.cargo/env"
+
+# make the nerdfont available to the chromebook terminal
+(cd ~/hacks/nerdfont; nohup python3 server.py > /dev/null 2> /dev/null & )

@@ -1,8 +1,7 @@
-
 if [ -d /home/edwin.chen ]; then
     export USER_EDWIN=edwin.chen
 else
-    export USER_EDWIN=edwinchenloo
+     export USER_EDWIN=edwinchenloo
 fi
 
 # User specific aliases and functions
@@ -13,6 +12,7 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias .3="cd ../../.."
 alias .4="cd ../../../.."
+alias .5="cd ../../../../.."
 alias .5="cd ../../../../.."
 alias arch='cat /sys/devices/cpu/caps/pmu_name;gcc -march=native -Q --help=target|grep march;/usr/bin/arch'
 alias cds="cd $SNAP_ROOT_DIR/xr-snap/src/xr/snap"
@@ -50,7 +50,29 @@ alias j='jobs -l'
 alias ldpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lessf='/usr/bin/less +F '
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
-alias ls='/bin/ls --color=auto '
+
+# eza (better `ls`)
+# ------------------------------------------------------------------------------
+if type eza &>/dev/null; then
+  alias l="eza --icons=always"
+  alias la="eza -a --icons=always"
+  alias lh="eza -ad --icons=always .*"
+  alias ll="eza -lg --icons=always"
+  alias lla="eza -lag --icons=always"
+  alias llh="eza -lagd --icons=always .*"
+  alias ls="eza --icons=always"
+  alias lt2="eza -lTg --level=2 --icons=always"
+  alias lt3="eza -lTg --level=3 --icons=always"
+  alias lt4="eza -lTg --level=4 --icons=always"
+  alias lt="eza -lTg --icons=always"
+  alias lta2="eza -lTag --level=2 --icons=always"
+  alias lta3="eza -lTag --level=3 --icons=always"
+  alias lta4="eza -lTag --level=4 --icons=always"
+  alias lta="eza -lTag --icons=always"
+else
+  alias ls='/bin/ls --color=auto '
+fi
+
 #alias make=~/bin/pretty_make.py
 alias mamba='. /shared/mamba/profile/mmm.sh'
 alias m='make -j 16'
@@ -469,4 +491,5 @@ function scpv() {
 function u() {
     uncrustify -c /home/${USER_EDWIN}/utils/uncrustify.cfg -l CPP --replace $1
 }
+
 
