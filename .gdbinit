@@ -14,11 +14,11 @@ set print static off
 set python print-stack full
 
 #set style enabled off
-catch throw
+#catch throw
 #catch signal all
 #set directories /home/edwin.chen/snap/ext/monorepo
-#break __sanitizer::Die
-#break __asan::ReportGenericError
+break __sanitizer::Die
+break __asan::ReportGenericError
 #directory /lhome/snap/ext/monorepo
 #directory /home/edwin.chen/snap/ext/monorepo
 #directory /home/edwin.chen/RX-9027
@@ -42,6 +42,6 @@ end
 skip -rfu ^std::
 skip -rfu ^assemblies::AssemblyBase
 
-define unit_test
-    r --gtest_break_on_failure --gtest_catch_exceptions=0 --gtest_filter=$arg0
+define gtest
+    r --gtest_break_on_failure --gtest_catch_exceptions=0
 end

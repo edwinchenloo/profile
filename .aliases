@@ -22,7 +22,6 @@ alias cdtd="cd ~/trader_data/nyopt/configs/`hostname -s`"
 alias cpv='rsync -ah --info=progress2'
 alias cleandisk='rm -rf ~/.ccache/* && rm -rf ~/.cache/konsole/* && rm -rf ~/.cache/vscode-cpptools/ipch/*'
 alias cloneds="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/svc/dataservices.git"
-alias clonem="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git"
 alias clones="git clone ssh://git@stash.xrtrading.local:7999/snap/snap.git"
 alias clonetd="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2-data.git trader-data"
 alias clonet="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2.git trader-repo"
@@ -35,6 +34,8 @@ alias dul='du -ah . | sort -rh | head -20'
 alias dulf='ls -1Rhs | sed -e "s/^ *//" | grep "^[0-9]" | sort -hr | head -n20'
 alias fd='find . -type d -name '
 alias ff='find . -type f -name '
+alias gcb='git checkout -b'
+alias gcm='git checkout master'
 alias gd='git diff --ignore-space-at-eol -b -w --ignore-blank-lines'
 alias gl='git log --all --graph --decorate'
 alias gpp='git pull; git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)'
@@ -143,6 +144,16 @@ _exe()
 exe()
 {
     { _exe "$@"; } 2>/dev/null
+}
+
+function clonem() {
+    DIR_="${1:-monorepo}"
+    git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/mr/monorepo.git ${DIR_}
+    cd ${DIR_}
+    if [[ ${DIR_} != "monorepo" ]]; then
+        git checkout ${DIR_}     # attempt to fetch existing branch
+        git checkout -b ${DIR_}
+    fi
 }
 
 function duc() {
@@ -264,6 +275,16 @@ ldpathedit()
     LD_LIBRARY_PATH=$(printf "$LD_LIBRARY_PATH" | tr -s :) LD_LIBRARY_PATH=${LD_LIBRARY_PATH#:} LD_LIBRARY_PATH=${LD_LIBRARY_PATH%:}
 }
 
+function hlogs()
+{
+    if [[ $# -gt 0 ]];
+    then
+        ll -d /home/snaptrader/$1;
+    else
+        ll -d /home/snaptrader/*;
+    fi
+}
+
 function llogs()
 {
     if [[ $# -gt 0 ]];
@@ -274,6 +295,17 @@ function llogs()
     fi
 }
 
+function mdds()   # merge development data services
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    _c="git checkout development";                        echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git submodule update";                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git merge -m ${BRANCH}:merge_with_development development"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+}
+
 function mergemaster()
 {
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -281,8 +313,22 @@ function mergemaster()
     _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git submodule update";                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git merge -m ${BRANCH}:merge_with_master master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+}
+
+function mms()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+    _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git merge -m ${BRANCH}:merge_with_master master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="cd ${XR_MONOREPO_ROOT}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="cd -";                                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git add ${XR_MONOREPO_ROOT}";                     echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git commit -a -m ${BRANCH}:monorepo";             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
 }
 
 function mydf()         # Pretty-print of 'df' output.
@@ -338,7 +384,7 @@ function pskill()
         echo "slaughtered."
 }
 
-function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|lua|xml|am|py|config|cc)' -type f -exec grep -nIi --color=auto "$1" {} + 2> /dev/null; }
+function rgrep { find "$2" -regextype posix-extended -regex '^.*(h|hpp|cpp|lua|xml|am|py|config|cc)' -type f -exec grep -HnIi --color=auto "$1" {} + 2> /dev/null; }
 
 function sync() {
     if [ -z "$1" ] || [ -z "$2" ]
@@ -350,10 +396,10 @@ function sync() {
     exe rsync -avptP --delete-excluded $1 "$2:$(dirname $1)"
 }
 
-export xrhosts=( "aur-142" "aur-188" "aur-189" "aur-190" "aur-193" "car-002" "car-007" "car-026" "car-033" "chi-555" "mah-007" "msp-089" "ny5-014" "ny5-023" "ny5-037" "ny5-038" "ny5-039" "ny5-040" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-101" "ny5-133" "ny5-134" "ny5-142" "tx1-077" "tx1-118" "tx1-268" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-679" "tx1-688" "tx1-706" )
+export xrhosts=("chi-555" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-101" "tx1-118" "tx1-268" "tx1-269" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-655" "tx1-679" "tx1-688" "tx1-706" )
 
 function findfhc() {
-    hs=( "aur-lsbp141" "aur-lsbp188" "aur-lsbp189" "aur-lsbp190" "aur-lsbp193" "car-lsbp002" "car-lsbp007" "car-lsbp033" "car-lsbp059" "chi-lsbp368" "chi-lsbp555" "mah-lsbp007" "msp-lsbp074" "msp-lsbp089" "ny5-lsbp014" "ny5-lsbp023" "ny5-lsbp037" "ny5-lsbp038" "ny5-lsbp039" "ny5-lsbp040" "ny5-lsbp047" "ny5-lsbp057" "ny5-lsbp059" "ny5-lsbp100" "ny5-lsbp101" "ny5-lsbp133" "ny5-lsbp134" "ny5-lsbp142" "tx1-lsbp077" "tx1-lsbp118" "tx1-lsbp268" "tx1-lsbp412" "tx1-lsbp535" "tx1-lsbp551" "tx1-lsbp624" "tx1-lsbp679" "tx1-lsbp688" "tx1-lsbp706" )
+    hs=( "aur-lsbp141" "aur-lsbp188" "aur-lsbp189" "aur-lsbp190" "aur-lsbp193" "car-lsbp002" "car-lsbp007" "car-lsbp033" "car-lsbp059" "chi-lsbp368" "chi-lsbp555" "mah-lsbp007" "msp-lsbp074" "msp-lsbp089" "ny5-lsbp014" "ny5-lsbp023" "ny5-lsbp037" "ny5-lsbp038" "ny5-lsbp039" "ny5-lsbp040" "ny5-lsbp047" "ny5-lsbp057" "ny5-lsbp059" "ny5-lsbp100" "ny5-lsbp101" "ny5-lsbp133" "ny5-lsbp134" "ny5-lsbp142" "tx1-lsbp077" "tx1-lsbl118" "tx1-lsbl268" "tx1-lsbl269" "tx1-lsbp412" "tx1-lsbp535" "tx1-lsbp551" "tx1-lsbp624" "tx1-lsbl655" "tx1-lsbp679" "tx1-lsbp688" "tx1-lsbp706" )
     for h in "${hs[@]}"
     do
        echo $h

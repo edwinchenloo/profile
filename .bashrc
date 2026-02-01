@@ -46,11 +46,8 @@ fi
 source /home/${USER_EDWIN}/.prompt
 
 export CDPATH='.:/lhome/snap/ext/monorepo/cpp/apps:/lhome/snap/ext/monorepo/cpp/:/lhome/trader-repo/options/rocket'
-export APCA_API_KEY_ID="PKBMQX8OFO3GN85F6E9Z"
-export APCA_API_SECRET_KEY="4HJOEe9g7KFVmBAQvRxes7J2Yin0pqoOY4Q8Y2fp"
-export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
-export APCA_API_DATA_URL="https://data.alpaca.markets"
 export EDITOR=vim
+export GREP_COLORS='ms=01;31:mc=01;31:sl=:cx=:fn=94:ln=32:bn=32:se=36'
 export HISTCONTROL=ignorespace
 export NCURSES_NO_UTF8_ACS=1
 export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
@@ -202,3 +199,5 @@ PERL5LIB="/home/edwin.chen/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PER
 PERL_LOCAL_LIB_ROOT="/home/edwin.chen/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/edwin.chen/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
+. "/home/edwin.chen/.local/share/bob/env/env.sh"
+. "/home/edwin.chen/.local/share/bob/env/env.sh"

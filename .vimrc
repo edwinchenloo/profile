@@ -77,10 +77,10 @@ set number                    " line Numbers on gutter
 "set paste noai                " don't autoindent while pasting from clipboard
 set path=.,**
 set path+=/usr/include/**
-"set path+=/lhome/snap/ext/**
-set path+=$SNAP_ROOT_DIR/ext/monorepo/dist/relwithdebinfo/include/**
+set path+=/lhome/snap/ext/**
+"set path+=$SNAP_ROOT_DIR/ext/monorepo/dist/relwithdebinfo/include/**
 set path+=$SNAP_ROOT_DIR/xr-snap/src/xr/snap/**
-set path+=$SNAP_ROOT_DIR/ext/**
+"set path+=$SNAP_ROOT_DIR/ext/**
 set path+=$TRADER_REPO_DIR/**
 set path+=$XR_MONOREPO_ROOT/cpp/libs/**
 set path+=$XR_MONOREPO_ROOT/**
@@ -138,7 +138,13 @@ nnoremap <S-m> :MRU<CR>
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
-nnoremap <leader>t <cmd>:term<cr>
+nnoremap <leader>f :vimgrep /<C-R><C-W>/ **/*<CR>:copen<CR>
+nnoremap <leader>g <cmd>:Gvdiffsplit master<CR>
+nnoremap <leader>s <cmd>:split<CR>
+" open terminal in current buffer's directory
+nnoremap <leader>t <cmd>:let $VIM_DIR=expand('%:p:h')<CR>:terminal<CR>cd $VIM_DIR<CR>source /home/edwin.chen/.bahrc<CR>
+nnoremap <leader>v <cmd>:vsplit<CR>
+noremap * :let @/ = "\\<<C-r><C-w>\\>"<cr>:set hlsearch<cr>
 
 " Invoke make
 "nnoremap <silent> <F6> :call Uncrustify('cpp')<CR>
@@ -148,8 +154,6 @@ nnoremap <leader>t <cmd>:term<cr>
 
 nnoremap <silent> <F3> :/error:<CR>
 nnoremap <silent> <F4> :execute "vimgrep /" . expand("<cword>") . "/j **/*"<Bar>cw<CR>
-
-nnoremap q <c-v>
 
 " Invoke make
 nnoremap <silent> <F5> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 make -j 8 <cr>
@@ -170,9 +174,6 @@ nnoremap <silent> <F8> :AsyncRun -raw=0 -save=2 -pos=bottom -mode=0 ~/bin/buildm
 " dos2unix
 "nnoremap <silent> <F9> :%s/$//g<CR>:%s// /g<CR>
 nnoremap <silent> <F9> :AsyncStop<CR>
-
-nnoremap <silent> <F11> :call NextColor(-1)<CR>
-nnoremap <silent> <F12> :call NextColor(1)<CR>
 
 "if executable('rg')
   set grepprg=rg\ --no-heading\ --vimgrep\ --smart-case
@@ -251,6 +252,12 @@ autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=black " ctermbg=black
 
 Plug 'yegappan/mru'
 nnoremap <S-m> :MRU<CR>
+
+"Plug 'xolox/vim-colorscheme-switcher'
+"Plug 'xolox/vim-misc
+"nnoremap <silent> <F12> :PrevColorScheme<CR>
+"nnoremap <silent> <S-F12> :NextColorScheme<CR>
+
 call plug#end()
 
 packadd termdebug
