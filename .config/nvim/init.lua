@@ -66,7 +66,7 @@ setup_plugins({
         dependencies = { "neovim/nvim-lspconfig" },
         config = function()
             require("mason").setup({
-                ensure_installed = { "clangd", "pyright", "rust_analyzer" },
+                ensure_installed = { "clangd", "pylsp", "pyright", "rust_analyzer" },
             })
         end
     },
@@ -74,7 +74,7 @@ setup_plugins({
         src = "https://github.com/williamboman/mason-lspconfig.nvim",    -- load all lsp tools
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "pyright", "rust_analyzer" },
+                ensure_installed = { "clangd", "lua_ls", "rust_analyzer" },
             })
         end
     },
@@ -168,6 +168,7 @@ setup_plugins({
                 settings = {
                     ['rust-analyzer'] = {
                         diagnostics = { enable = false },
+                        checkOnSave = { command = 'clippy' },
                     }
                 },
                 before_init = function(init_params, config)
@@ -177,25 +178,26 @@ setup_plugins({
                 end,
             }
 
-            --vim.lsp.config.lua_ls = {
-            --    cmd = { 'lua-language-server' },
-            --    filetypes = { 'lua' },
-            --    root_markers = { '.luarc.json', '.luarc.jsonc' },
-            --    settings = {
-            --        Lua = {
-            --            diagnostics = { globals = { 'vim' }, },
-            --            runtime = { version = 'LuaJIT' },
-            --            workspace = {                 -- Add Neovim's Lua API to the language server's library
-            --                library = vim.tbl_get(vim.lsp.get_clients(), 1, 'config', 'workspace', 'library') or {},
-            --                checkThirdParty = false,
-            --            },
-            --            signatureHelp = { enabled = true },
-            --        },
-            --   },
-            --}
+            vim.lsp.config.lua_ls = {
+                cmd = { 'lua-language-server' },
+                filetypes = { 'lua' },
+                root_markers = { '.luarc.json', '.luarc.jsonc' },
+                settings = {
+                    Lua = {
+                        diagnostics = { globals = { 'vim' }, },
+                        runtime = { version = 'LuaJIT' },
+                        workspace = {                 -- Add Neovim's Lua API to the language server's library
+                            library = vim.tbl_get(vim.lsp.get_clients(), 1, 'config', 'workspace', 'library') or {},
+                            checkThirdParty = false,
+                            telemetry = { enable = false },
+                        },
+                        signatureHelp = { enabled = true },
+                    },
+               },
+            }
 
             vim.lsp.enable('clangd')
-            --vim.lsp.enable('lua_ls')
+            vim.lsp.enable('lua_ls')
             vim.lsp.enable('pyright')
             vim.lsp.enable('rust_analyzer')
         end,
@@ -231,7 +233,6 @@ setup_plugins({
             vim.keymap.set('n', '<Leader>am', '<cmd>ClaudeCodeSelectModel<CR>', { desc = "Select Claude" })
             vim.keymap.set('n', '<Leader>ab', '<cmd>ClaudeCodeAdd<CR>', { desc = "Add Current Buffer to Claude" })
             vim.keymap.set('n', '<Leader>as', '<cmd>ClaudeCodeSend<CR>', { desc = "Send to Claude" })
-            vim.keymap.set('n', '<C-,>', '<cmd>ClaudeCodeFocus<CR>')
         end,
     },
 }
@@ -252,16 +253,16 @@ vim.keymap.set('n', '<leader>g', '<CMD>Gvdiffsplit master<CR>')
 vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format)
 vim.keymap.set('n', '<leader>n', '<CMD>edit $MYVIMRC<CR>')
 vim.keymap.set('n', '<leader>o', '<CMD>update<CR> :source<CR>')
-vim.keymap.set('n', '<leader>q', '<CMD>wqall!<CR>')
-vim.keymap.set('n', '<leader>s', '<CMD>split<CR>')
-vim.keymap.set('n', '<leader>v', '<CMD>vsplit<CR>')
-vim.keymap.set('n', '<leader>w', '<CMD>wall!<CR>')
+vim.keymap.set('n', '<leader>q', '<CMD>wqall!<CR>', { desc = "Write all and quite" } )
+vim.keymap.set('n', '<leader>s', '<CMD>split<CR>', { desc = "Split horizontally" } )
+vim.keymap.set('n', '<leader>t', '<CMD>split term://bash<CR>i', { desc = "Open terminal in horizontal split and insert mode" })
+vim.keymap.set('n', '<leader>v', '<CMD>vsplit<CR>', { desc = "Split vertically" } )
+vim.keymap.set('n', '<leader>w', '<CMD>wall!<CR>', { desc = "Write all" } )
 vim.keymap.set('n', '<F3>', ':/error:<CR>')
 vim.keymap.set('n', '<F6>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<CR> <CMD>copen<CR>')
 vim.keymap.set('n', '<F7>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>')
 vim.keymap.set('n', '<F8>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>')
 vim.keymap.set('n', '<F9>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeCancelJobs<CR>')
-vim.keymap.set('n', '<C-t>', '<CMD>split term://bash<CR>i', { desc = "Open terminal in horizontal split and insert mode" })
 vim.keymap.set('t', '<leader><ESC>', '<C-\\><C-n><C-w>', { desc = "Switch out of terminal (follow with 'j', 'k', 'h', or 'l')" })
 vim.keymap.set("n", "<Tab>",   "<cmd>bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
