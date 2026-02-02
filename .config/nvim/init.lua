@@ -268,7 +268,7 @@ vim.keymap.set("n", "<F6>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<C
 vim.keymap.set("n", "<F7>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>", { desc = "Make snap" })
 vim.keymap.set("n", "<F8>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>", { desc = "Make monorepo" })
 vim.keymap.set("n", "<F9>", "<CMD>cexpr []<CR> <CMD>NeomakeCancelJobs<CR>", { desc = "Stop make jobs" })
-vim.keymap.set("t", "<leader><ESC>", "<C-\\><C-n><C-w>", { desc = "Switch out of terminal (follow with 'j', 'k', 'h', or 'l')" })
+vim.keymap.set("t", "<leader><ESC>", "<C-\\><C-n><C-w>p", { desc = "Switch out of terminal (or AI prompt)" })
 vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 
