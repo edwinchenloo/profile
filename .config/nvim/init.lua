@@ -259,7 +259,7 @@ vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "Beautify current
 vim.keymap.set("n", "<leader>m", "<CMD>bro o<CR>", { desc = "Most recently-opened files" })
 vim.keymap.set("n", "<leader>n", "<CMD>edit $MYVIMRC<CR>", { desc = "Edit nvim's init.lua" })
 vim.keymap.set("n", "<leader>N", "<CMD>update<CR> :source $MYVIMRC<CR>", { desc = "Re-read nvim's init.lua" })
-vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quite" })
+vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit" })
 vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
 vim.keymap.set("n", "<leader>v", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>w", "<CMD>wall!<CR>", { desc = "Write all" })
@@ -281,7 +281,7 @@ vim.api.nvim_create_autocmd("BufWritePre", { -- trim trailing whitespace prior t
     pattern = { "*" },
     callback = function()
         local save_cursor = vim.fn.winsaveview()
-        vim.cmd([[%s/\s\+$//e]]) -- rerform the substitution
+        vim.cmd([[%s/\s\+$//e]]) -- perform the substitution
         vim.fn.winrestview(save_cursor) -- restore the cursor position
     end,
 })
