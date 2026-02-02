@@ -263,7 +263,7 @@ vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit
 vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
 vim.keymap.set("n", "<leader>v", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>w", "<CMD>wall!<CR>", { desc = "Write all" })
-vim.keymap.set("n", "<F3>", ":/error:<CR>", { desc = "Find next error in currente quickfix buffer" })
+vim.keymap.set("n", "<F3>", ":/error:<CR>", { desc = "Find next error in current quickfix buffer" })
 vim.keymap.set("n", "<F6>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<CR> <CMD>copen<CR>", { desc = "Make trader-repo" })
 vim.keymap.set("n", "<F7>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>", { desc = "Make snap" })
 vim.keymap.set("n", "<F8>", "<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>", { desc = "Make monorepo" })
@@ -281,7 +281,7 @@ vim.api.nvim_create_autocmd("BufWritePre", { -- trim trailing whitespace prior t
     pattern = { "*" },
     callback = function()
         local save_cursor = vim.fn.winsaveview()
-        vim.cmd([[%s/\s\+$//e]]) -- perform the substitution
+        vim.cmd([[%s/\s\+$//e]]) -- perform substitution
         vim.fn.winrestview(save_cursor) -- restore the cursor position
     end,
 })
