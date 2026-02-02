@@ -1,9 +1,10 @@
 vim.g.mapleader = " "
 vim.o.autoindent = true
+vim.o.autowriteall = true
 vim.o.autoread = true   -- watch for file changes
 vim.o.backspace = indent, eol, start
 vim.o.clipboard = "unnamedplus"
-vim.o.completeopt = "noselect"
+vim.o.completeopt = "menu,menuone,noselect"
 vim.o.diffopt = filler, iwhite
 vim.o.errorbells = true
 vim.o.expandtab = true
@@ -63,7 +64,6 @@ setup_plugins({
         end
     },
     { src = "https://github.com/williamboman/mason.nvim",    -- load all lsp tools
-        dependencies = { "neovim/nvim-lspconfig" },
         config = function()
             require("mason").setup({
                 ensure_installed = { "clangd", "pylsp", "pyright", "rust_analyzer" },
@@ -117,7 +117,6 @@ setup_plugins({
     { src = "https://github.com/MunifTanjim/nui.nvim", },
     { src = "https://github.com/nvim-lua/plenary.nvim", },
     { src = "https://github.com/nvim-telescope/telescope.nvim", },
-    { src = "https://github.com/hrsh7th/nvim-cmp", },
     { src = "https://github.com/nvim-treesitter/nvim-treesitter",
         config = function()
             require('nvim-treesitter').setup({
@@ -130,7 +129,6 @@ setup_plugins({
         end,
     },
     { src = "https://github.com/Badhi/nvim-treesitter-cpp-tools",
-      dependencies = { "nvim-treesitter/nvim-treesitter", },
       config = function()
           require("nt-cpp-tools").setup({
               header_extension = 'hpp',
@@ -202,6 +200,11 @@ setup_plugins({
             vim.lsp.enable('rust_analyzer')
         end,
     },
+    { src = "https://github.com/hrsh7th/cmp-nvim-lsp", },
+    { src = "https://github.com/hrsh7th/cmp-buffer", },
+    { src = "https://github.com/hrsh7th/cmp-path", },
+    { src = "https://github.com/hrsh7th/cmp-cmdline", },
+    { src = "https://github.com/hrsh7th/nvim-cmp", },
     { src = "https://github.com/Djancyp/custom-theme.nvim",
       config = function()
           require("custom-theme").setup()
@@ -259,10 +262,10 @@ vim.keymap.set('n', '<leader>t', '<CMD>split term://bash<CR>i', { desc = "Open t
 vim.keymap.set('n', '<leader>v', '<CMD>vsplit<CR>', { desc = "Split vertically" } )
 vim.keymap.set('n', '<leader>w', '<CMD>wall!<CR>', { desc = "Write all" } )
 vim.keymap.set('n', '<F3>', ':/error:<CR>')
-vim.keymap.set('n', '<F6>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<CR> <CMD>copen<CR>')
-vim.keymap.set('n', '<F7>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>')
-vim.keymap.set('n', '<F8>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>')
-vim.keymap.set('n', '<F9>', '<CMD>wa<CR> <CMD>cexpr []<CR> <CMD>NeomakeCancelJobs<CR>')
+vim.keymap.set('n', '<F6>', '<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<CR> <CMD>copen<CR>')
+vim.keymap.set('n', '<F7>', '<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>')
+vim.keymap.set('n', '<F8>', '<CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>')
+vim.keymap.set('n', '<F9>', '<CMD>cexpr []<CR> <CMD>NeomakeCancelJobs<CR>')
 vim.keymap.set('t', '<leader><ESC>', '<C-\\><C-n><C-w>', { desc = "Switch out of terminal (follow with 'j', 'k', 'h', or 'l')" })
 vim.keymap.set("n", "<Tab>",   "<cmd>bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
