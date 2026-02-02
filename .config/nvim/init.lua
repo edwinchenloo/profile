@@ -1,6 +1,6 @@
-vim.g.mapleader = " " -- Space bar is th 'leader' char
+vim.g.mapleader = " " -- space bar is the 'leader' char
 vim.o.autoindent = true
-vim.o.autowriteall = true -- Save bufferes before invoking make
+vim.o.autowriteall = true -- save bufferes before invoking make
 vim.o.autoread = true -- watch for file changes
 vim.o.backspace = indent, eol, start
 vim.o.clipboard = "unnamedplus"
@@ -20,11 +20,11 @@ vim.o.mouse = "a"
 vim.o.number = true
 vim.o.scrolloff = 5 -- keep at least 5 lines above/below
 vim.o.shada = "!,'20,<50,s10,h" -- limit opened file history to 20
-vim.o.shiftwidth = 4 -- spaces for each step
+vim.o.shiftwidth = 4 -- spaces for each level
 vim.o.signcolumn = "yes"
 vim.o.softtabstop = 4
 vim.o.smartindent = true
-vim.o.startofline = false -- leave my cursor position alone
+vim.o.startofline = false -- leave cursor position alone
 vim.o.tabstop = 4
 vim.o.termguicolors = true
 vim.o.visualbell = true -- visual flash instead of audible beep for error
@@ -250,15 +250,15 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 vim.keymap.set("n", "<Leader>b", "<CMD>ls<CR>:b<Space>", { noremap = true, desc = "Prompt to switch to a buffer" })
+vim.keymap.set("n", "<leader>d", "<CMD>Gvdiffsplit master<CR>", { desc = "Differences against what is in git master" })
 vim.keymap.set("n", "<leader>e", "<CMD>Pick files<CR>", { desc = "File explorer" })
 vim.keymap.set("v", "<leader>f", "zo", { desc = "Fold toggle (expand if collapsed)" })
 vim.keymap.set("n", "<leader>f", "za", { desc = "Fold collapse" })
-vim.keymap.set("n", "<leader>g", "<CMD>Gvdiffsplit master<CR>", { desc = "Differences against what is in git master" })
 vim.keymap.set("n", "<leader>h", "<CMD>split<CR><C-w>w", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "Beautify current file" })
 vim.keymap.set("n", "<leader>m", "<CMD>bro o<CR>", { desc = "Most recently-opened files" })
 vim.keymap.set("n", "<leader>n", "<CMD>edit $MYVIMRC<CR>", { desc = "Edit nvim's init.lua" })
-vim.keymap.set("n", "<leader>o", "<CMD>update<CR> :source $MYVIMRC<CR>", { desc = "Re-read nvim's init.lua" })
+vim.keymap.set("n", "<leader>N", "<CMD>update<CR> :source $MYVIMRC<CR>", { desc = "Re-read nvim's init.lua" })
 vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quite" })
 vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
 vim.keymap.set("n", "<leader>v", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
@@ -276,8 +276,6 @@ vim.lsp.inlay_hint.enable(false)
 
 vim.cmd(":hi statusline guibg=NONE")
 vim.cmd("filetype indent on")
---vim.cmd([[autocmd BufWinEnter ?* lua vim.opt.foldmethod = "syntax"]])  -- some plugin keeps overiding this...don't have a full answer yet
-
 
 vim.api.nvim_create_autocmd("BufWritePre", { -- trim trailing whitespace prior to saving
     pattern = { "*" },
