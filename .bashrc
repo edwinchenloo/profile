@@ -209,4 +209,6 @@ PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
 . "$HOME/.cargo/env"
 
 # make the nerdfont available to the chromebook terminal
-(cd ~/hacks/nerdfont; nohup python3 server.py > /dev/null 2> /dev/null & )
+if [ -d ~/hacks/nerdfont ]; then
+    (cd ~/hacks/nerdfont; nohup python3 server.py > /dev/null 2> /dev/null & )
+fi

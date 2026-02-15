@@ -228,6 +228,12 @@ function gc()
       return
     fi
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot commit to master"
+        return
+    fi
+
     COMMENT="$1"
     [[ "${COMMENT}" == \"*\" || "${COMMENT}" == \'*\' ]] && COMMENT="${$1:1:-1}"
     git commit -a -m "$BRANCH:$COMMENT"
@@ -320,6 +326,11 @@ function llogs()
 function mdds()   # merge development data services
 {
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot merge to master"
+        return
+    fi
 
     _c="git checkout development";                        echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
@@ -331,6 +342,11 @@ function mdds()   # merge development data services
 function mergemaster()
 {
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot merge to master"
+        return
+    fi
 
     _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
@@ -341,6 +357,11 @@ function mergemaster()
 function mms()
 {
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot merge to master"
+        return
+    fi
 
     _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
