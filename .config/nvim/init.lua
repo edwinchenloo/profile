@@ -1,10 +1,11 @@
-vim.g.mapleader = " " -- space bar is the 'leader' char
+vim.g.mapleader = " " -- space bar is the 'leader' cha
 vim.o.autoindent = true
 vim.o.autowriteall = true -- save bufferes before invoking make
 vim.o.autoread = true -- watch for file changes
 vim.o.backspace = "indent,eol,start"
 vim.o.clipboard = "unnamedplus"
 vim.o.completeopt = "menu,menuone,noselect"
+vim.o.pumwidth = 40
 vim.o.diffopt = "filler,iwhite"
 vim.o.errorbells = true
 vim.o.expandtab = true
@@ -16,7 +17,7 @@ vim.o.hidden = true -- allow switching buffers without saving them
 vim.o.listchars = "tab:» ,trail:·,extends:▶,precedes:◀,nbsp:‿" -- unchanged: eol, multispace, lead
 vim.o.list = true
 vim.o.matchtime = 5 -- blink matching chars for this number of seconds
-vim.o.mouse = ""
+vim.o.mouse = "a"
 vim.o.number = true
 vim.o.scrolloff = 5 -- keep at least 5 lines above/below
 vim.o.shada = "!,'25,<50,s10,h" -- limit opened file history to 25
@@ -35,12 +36,15 @@ vim.o.wrap = true -- soft wrap long lines
 
 -- path for 'gf' to work
 vim.opt.path="/usr/include/**"
+.. "," .. vim.env.XR_MONOREPO_ROOT
 .. "," .. vim.env.XR_MONOREPO_ROOT .. "/cpp/libs/**"
 .. "," .. vim.env.XR_MONOREPO_ROOT .. "/cpp/apps/**"
 .. "," .. vim.env.SNAP_ROOT_DIR    .. "/xr-snap/src/xr/snap/**"
+.. "," .. vim.env.SNAP_ROOT_DIR    .. "/ext"
 if vim.env.TRADER_REPO_DIR ~= nil then
   vim.opt.path:append("," .. vim.env.TRADER_REPO_DIR  .. "/**")
 end
+
 
 
 local function setup_plugins(plugins)
@@ -75,31 +79,21 @@ setup_plugins({
         end,
     },
     {
+        src = "https://github.com/kevinhwang91/nvim-bqf",
+        ft = 'qf',
+        config = function()
+            require("bqf").setup({
+                preview = {
+                    wrap = true,
+                }
+            })
+        end,
+    },
+    {
         src = "https://github.com/williamboman/mason.nvim", -- load all lsp, formatting, linters
         config = function()
             require("mason").setup({
                 ensure_installed = { "clangd", "pylsp", "pyright", "rust_analyzer" },
-            })
-        end,
-    },
-    {
-        src = "https://github.com/williamboman/mason-lspconfig.nvim", -- load all lsp tools
-        config = function()
-            require("mason-lspconfig").setup({
-                ensure_installed = { "clangd", "lua_ls", "rust_analyzer" },
-            })
-        end,
-    },
-    {
-        src = "https://github.com/lukas-reineke/indent-blankline.nvim", -- highlight indentation levels
-        config = function()
-            require("ibl").setup({
-                indent = { highlight = { "CursorColumn", "Whitespace" }, char = "" },
-                whitespace = {
-                    highlight = { "CursorColumn", "Whitespace" },
-                    remove_blankline_trail = false,
-                },
-                scope = { enabled = false },
             })
         end,
     },
@@ -131,29 +125,6 @@ setup_plugins({
             vim.api.nvim_create_autocmd("User", {
                 pattern = "TelescopePreviewerLoaded",
                 callback = function() vim.wo.number = true end,
-            })
-        end,
-    },
-    {
-        src = "https://github.com/nvim-treesitter/nvim-treesitter",
-        config = function()
-            require("nvim-treesitter").setup({
-                ensure_installed = { "c", "cpp", "html", "json", "python", "rust" },
-                highlight = { enable = "true" },
-                rainbow = { enable = "true", extended_mode = "true" },
-                folding = { enabled = true },
-                --sync_install     = false, -- only needed at first setup
-                --auto_install     = true,
-            })
-
-        end,
-    },
-    {
-        src = "https://github.com/Badhi/nvim-treesitter-cpp-tools",
-        config = function()
-            require("nt-cpp-tools").setup({
-                header_extension = "hpp",
-                source_extension = "cpp",
             })
         end,
     },
@@ -213,6 +184,64 @@ setup_plugins({
         end,
     },
     {
+        src = "https://github.com/williamboman/mason-lspconfig.nvim", -- load all lsp tools
+        config = function()
+            require("mason-lspconfig").setup({
+                ensure_installed = { "clangd", "lua_ls", "rust_analyzer" },
+            })
+        end,
+    },
+    {
+        src = "https://github.com/lukas-reineke/indent-blankline.nvim", -- highlight indentation levels
+        config = function()
+            require("ibl").setup({
+                indent = { highlight = { "CursorColumn", "Whitespace" }, char = "" },
+                whitespace = {
+                    highlight = { "CursorColumn", "Whitespace" },
+                    remove_blankline_trail = false,
+                },
+                scope = { enabled = false },
+            })
+        end,
+    },
+    {
+        src = "https://github.com/nvim-treesitter/nvim-treesitter",
+        config = function()
+            require("nvim-treesitter").setup({
+                ensure_installed = { "c", "cpp", "html", "json", "python", "rust" },
+                highlight = { enable = "true" },
+                rainbow = { enable = "true", extended_mode = "true" },
+                folding = { enabled = true },
+                --sync_install     = false, -- only needed at first setup
+                --auto_install     = true,
+            })
+
+        end,
+    },
+    {
+        src = "https://github.com/Badhi/nvim-treesitter-cpp-tools",
+        config = function()
+            require("nt-cpp-tools").setup({
+                header_extension = "hpp",
+                source_extension = "cpp",
+            })
+        end,
+    },
+    {
+        src = "https://github.com/saghen/blink.cmp",
+        config = function()
+            require("blink.cmp").setup({
+                keymap = { preset = "super-tab" },
+                completion = {
+                    documentation = { auto_show = true },
+                },
+                sources = {
+                    default = { "lsp", "path", "buffer" },
+                },
+            })
+        end,
+    },
+    {
         src = "https://github.com/Djancyp/custom-theme.nvim", -- see what field group a colortheme supports and edit them
         config = function()
             require("custom-theme").setup()
@@ -223,8 +252,9 @@ setup_plugins({
         src = "https://github.com/coder/claudecode.nvim",
         config = function()
             require("claudecode").setup({
-                terminal_cmd = "/home/edwin.chen/.local/bin/claude",
+                terminal_cmd = "/home/edwin.chen/.local/bin/claude --dangerously-skip-permissions",
                 terminal = {
+                    split_side = "bottom",
                     cwd_provider = function(ctx)
                         -- Prefer repo root; fallback to file's directory
                         local cwd = require("claudecode.cwd").git_root(ctx.file_dir or ctx.cwd)
@@ -250,7 +280,7 @@ setup_plugins({
     { src = "https://github.com/nvim-neotest/nvim-nio" }, -- async IO library (required by nvim-dap-ui)
     {
         src = "https://github.com/mfussenegger/nvim-dap",
-        config = function()
+       config = function()
             local dap = require("dap")
 
             -- GDB adapter (requires GDB 14+ with DAP support)
@@ -263,9 +293,28 @@ setup_plugins({
             }
 
             -- C/C++ configurations
-            local last_program = vim.env.XR_MONOREPO_ROOT .. "/bazel-bin/"
-            local last_args = ""
-            local last_cwd = vim.env.XR_MONOREPO_ROOT .. "/"
+            -- Persist last debug inputs across restarts
+            local dap_cache_file = vim.fn.stdpath("data") .. "/dap_last_inputs.json"
+            local function load_dap_cache()
+                local f = io.open(dap_cache_file, "r")
+                if f then
+                    local ok, data = pcall(vim.json.decode, f:read("*a"))
+                    f:close()
+                    if ok and data then return data end
+                end
+                return {}
+            end
+            local function save_dap_cache(prog, args, cwd)
+                local f = io.open(dap_cache_file, "w")
+                if f then
+                    f:write(vim.json.encode({ program = prog, args = args, cwd = cwd }))
+                    f:close()
+                end
+            end
+            local cache = load_dap_cache()
+            local last_program = cache.program or (vim.env.XR_MONOREPO_ROOT .. "/bazel-bin/")
+            local last_args = cache.args or ""
+            local last_cwd = cache.cwd or (vim.env.XR_MONOREPO_ROOT .. "/")
 
             dap.configurations.cpp = {
                 {
@@ -274,14 +323,17 @@ setup_plugins({
                     request = "launch",
                     program = function()
                         last_program = vim.fn.input("Executable: ", last_program, "file")
+                        save_dap_cache(last_program, last_args, last_cwd)
                         return last_program
                     end,
                     args = function()
                         last_args = vim.fn.input("Arguments: ", last_args)
+                        save_dap_cache(last_program, last_args, last_cwd)
                         return vim.split(last_args, " ", { trimempty = true })
                     end,
                     cwd = function()
                         last_cwd = vim.fn.input("Working directory: ", last_cwd, "dir")
+                        save_dap_cache(last_program, last_args, last_cwd)
                         return last_cwd
                     end,
                     stopAtBeginningOfMainSubprogram = true,
@@ -304,6 +356,9 @@ setup_plugins({
             }
             dap.configurations.c = dap.configurations.cpp
 
+            -- Open the integrated terminal (program stdout) at the bottom
+            dap.defaults.fallback.terminal_win_cmd = "belowright new"
+
             -- Session control
             vim.keymap.set("n", "<leader>dl", dap.continue, { desc = "Start/Continue Debugging" })
 
@@ -312,6 +367,13 @@ setup_plugins({
             vim.keymap.set("n", "<C-Right>", dap.step_into, { desc = "Step Into" })
             vim.keymap.set("n", "<C-Left>", dap.step_out, { desc = "Step Out" })
             vim.keymap.set("n", "<C-Up>", dap.continue, { desc = "Continue" })
+
+            -- Stack frame navigation
+            vim.keymap.set("n", "<leader>du", dap.up, { desc = "Frame Up" })
+            vim.keymap.set("n", "<leader>dd", dap.down, { desc = "Frame Down" })
+            vim.keymap.set("n", "<leader>ds", function()
+                require("dapui").float_element("stacks", { enter = true })
+            end, { desc = "Open Stacks (float)" })
 
             -- Breakpoints
             vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Toggle Breakpoint" })
@@ -330,19 +392,19 @@ setup_plugins({
             local dapui = require("dapui")
             dapui.setup({
                 layouts = {
-                    {   -- Left sidebar: scopes + breakpoints + stacks + watches
+                    {   -- Right sidebar: repl for GDB commands
                         elements = {
-                            { id = "scopes", size = 0.4 },
-                            { id = "breakpoints", size = 0.15 },
-                            { id = "stacks", size = 0.25 },
-                            { id = "watches", size = 0.2 },
+                            { id = "repl", size = 1.0 },
                         },
-                        size = 50,
-                        position = "left",
+                        size = 60,
+                        position = "right",
                     },
-                    {   -- Bottom panel: repl only (for GDB commands)
-                        elements = { { id = "repl", size = 1.0 } },
-                        size = 10,
+                    {   -- Bottom panel: stacks + scopes side by side
+                        elements = {
+                            { id = "stacks", size = 0.5 },
+                            { id = "scopes", size = 0.5 },
+                        },
+                        size = 15,
                         position = "bottom",
                     },
                 },
@@ -372,21 +434,17 @@ setup_plugins({
     },
 })
 
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(ev)
-        local client = vim.lsp.get_client_by_id(ev.data.client_id)
-        if client:supports_method("textDocument/completion") then
-            vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-        end
-    end,
-})
+-- blink.cmp handles LSP completion; do not enable vim.lsp.completion
 
 vim.keymap.set("n", "<Leader>b", function() require("telescope.builtin").buffers() end, { desc = "Switch buffer with preview" })
 vim.keymap.set("n", "<leader>e", ":/error:<CR>", { desc = "Find next error in current quickfix buffer" })
 vim.keymap.set("v", "<leader>f", "zo", { desc = "Fold toggle (expand if collapsed)" })
 vim.keymap.set("n", "<leader>-", "<CMD>split<CR><C-w>w", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>f", "za", { desc = "Fold collapse" })
+vim.keymap.set("n", "<leader>lc", function() require("telescope.builtin").lsp_workspace_symbols({ symbols = "class" }) end, { desc = "Search workspace classes" })
 vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "Beautify current file" })
+vim.keymap.set("n", "<leader>ls", function() require("telescope.builtin").lsp_workspace_symbols() end, { desc = "Search workspace symbols" })
+vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 vim.keymap.set("n", "<leader>tf", function()
     local word = vim.fn.expand("<cword>")
     vim.fn.setreg("/", "\\<" .. word .. "\\>")
@@ -424,6 +482,9 @@ vim.keymap.set("t", "<C-Space>", "<C-\\><C-n><C-W>p", { desc = "Switch out of te
 vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end, { desc = "Go to definition" })
+vim.keymap.set("i", "<RightMouse>", '<C-r>+')
+vim.keymap.set("v", "<RightMouse>", '"+p')
+vim.keymap.set("n", "<RightMouse>", '"+p')
 
 vim.api.nvim_create_user_command("LspStatus", function()
     for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
@@ -454,6 +515,87 @@ vim.api.nvim_create_autocmd("BufWritePost", { -- auto-reload init.lua on save
     callback = function()
         vim.cmd("source " .. vim.fn.stdpath("config") .. "/init.lua")
         vim.notify("init.lua reloaded", vim.log.levels.INFO)
+    end,
+})
+
+vim.api.nvim_create_autocmd("FileType", { -- make gf in quickfix open file in previous window
+    pattern = "qf",
+    callback = function()
+        vim.wo.wrap = true
+        local function parse_file_and_line()
+            local line = vim.api.nvim_get_current_line()
+            local file, lnum = line:match("(/[%w_.%-/]+):(%d+)")
+            if not file or vim.fn.filereadable(file) ~= 1 then
+                file = line:match("(/[%w_.%-/]+)")
+                lnum = nil
+            end
+            if not file or vim.fn.filereadable(file) ~= 1 then
+                file = vim.fn.expand("<cfile>")
+                lnum = nil
+            end
+            return file, lnum and tonumber(lnum)
+        end
+        vim.keymap.set("n", "gf", function()
+            local file, lnum = parse_file_and_line()
+            if file == "" then return end
+            vim.cmd("edit " .. vim.fn.fnameescape(file))
+            if lnum then
+                vim.schedule(function()
+                    pcall(vim.api.nvim_win_set_cursor, 0, { lnum, 0 })
+                    vim.cmd("normal! zz")
+                end)
+            end
+        end, { buffer = true })
+        vim.keymap.set("n", "gF", function()
+            local file, lnum = parse_file_and_line()
+            if file == "" then return end
+            vim.cmd("wincmd p") -- open it in a regular window
+            vim.cmd("edit " .. vim.fn.fnameescape(file))
+            if lnum then
+                vim.schedule(function()
+                    pcall(vim.api.nvim_win_set_cursor, 0, { lnum, 0 })
+                    vim.cmd("normal! zz")
+                end)
+            end
+        end, { buffer = true })
+    end,
+})
+
+vim.api.nvim_create_autocmd("FileType", { -- auto-scroll quickfix to bottom as new lines are added
+    pattern = "qf",
+    callback = function(ev)
+        vim.api.nvim_buf_attach(ev.buf, false, {
+            on_lines = function()
+                vim.schedule(function()
+                    local qf_winid = vim.fn.bufwinid(ev.buf)
+                    if qf_winid ~= -1 then
+                        local line_count = vim.api.nvim_buf_line_count(ev.buf)
+                        pcall(vim.api.nvim_win_set_cursor, qf_winid, { line_count, 0 })
+                    end
+                end)
+            end,
+        })
+    end,
+})
+
+vim.api.nvim_create_autocmd("User", { -- reload full build output into quickfix after Neomake finishes
+    pattern = "NeomakeFinished",
+    callback = function()
+        local f = io.open("/tmp/outt", "r")
+        if not f then return end
+        local lines = {}
+        for line in f:lines() do
+            table.insert(lines, line)
+        end
+        f:close()
+        local efm = table.concat({
+            "%f:%l:%c: %t%*[^:]: %m",
+            "%f:%l: %t%*[^:]: %m",
+            "%f:%l:%c: %m",
+            "%f:%l: %m",
+            "%+G%.%#",
+        }, ",")
+        vim.fn.setqflist({}, "r", { lines = lines, efm = efm })
     end,
 })
 
