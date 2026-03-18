@@ -50,6 +50,7 @@ alias j='jobs -l'
 alias ldpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lessf='/usr/bin/less +F '
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
+alias proxy='nohup /home/${USER_EDWIN}/.local/bin/tinyproxy -c ~/.config/tinyproxy/tinyproxy.conf > /dev/null 2>&1 &'
 
 # eza (better `ls`)
 # ------------------------------------------------------------------------------
@@ -94,10 +95,10 @@ alias pr='sudo perf -F 99 -ag sleep 20 -p'
 alias psg='ps -edf|grep -i'
 alias pscpu10='ps auxf|sort -nr -k 3|head -10'
 alias psmem10='ps auxf|sort -nr -k 4|head -10'
-alias qm='unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && pathedit -p ~/bin;export DISTCC_HOSTS="localhost";export XR_MONOREPO_ROOT=`pwd`;source /home/edwin.chen/.bashrc'
-alias qs='./quickstart.sh && source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
-alias qsl='source setupEnv.sh && source ~/.prompt;export SNAP_ROOT_DIR=`pwd`;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo'
-alias qtr='export TRADER_ROOT_DIR=`pwd`; export TRADER_REPO_DIR=${TRADER_ROOT_DIR};export PYTHONPATH="$SNAP_ROOT_DIR/scripts:$TRADER_ROOT_DIR/scripts"'
+alias qm='export XR_MONOREPO_ROOT=`git rev-parse --show-toplevel`; cd ${XR_MONOREPO_ROOT}; unset PYTHONPATH && python/apps/buildSetup/buildSetup.py && source .monorepo_profile && pathedit -p ~/bin;export DISTCC_HOSTS="localhost";source /home/edwin.chen/.bashrc; cd -'
+alias qs='export SNAP_ROOT_DIR=`git rev-parse --show-toplevel`; cd ${SNAP_ROOT_DIR}; ./quickstart.sh && source setupEnv.sh && source ~/.prompt;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo; cd -'
+alias qsl='export SNAP_ROOT_DIR=`git rev-parse --show-toplevel`; cd {SNAP_ROOT_DIR}; source setupEnv.sh && source ~/.prompt;export XR_MONOREPO_ROOT=$SNAP_ROOT_DIR/ext/monorepo; cd -'
+alias qtr='export TRADER_ROOT_DIR=`git rev-parse --show-toplevel`; cd ${TRADER_ROOT_DIR}; export TRADER_REPO_DIR=${TRADER_ROOT_DIR};export PYTHONPATH="$SNAP_ROOT_DIR/scripts:$TRADER_ROOT_DIR/scripts"; cd -'
 alias rmcore='rm core.[0-9]*'
 alias rchmod="find . -type f -regextype egrep -regex '.*\.h|.*\.cpp|.*\.vcxp*|CMake.*|.*\.pro|.*\.pri' -exec chmod 664 {} \;"
 alias rmt='mkdir ~/.trash;mv --force -t ~/.trash '
@@ -455,7 +456,13 @@ function _scpvim() {
     for h in "${xrhosts[@]}"
     do
         ssh $h 'rm -rf /home/edwin.chen/.vim'
-        exe rsync -avptP /home/edwin.chen/.vim $h:/home/edwin.chen
+        ssh $h 'rm -rf /home/edwin.chen/.config/nvim'
+        ssh $h 'rm -rf /home/edwin.chen/.local/bin'
+        ssh $h 'rm -rf /home/edwin.chen/.local/share'
+        exe rsync -avptP /home/${USER_EDWIN}/.vim         $h:/home/edwin.chen
+        exe rsync -avptP /home/${USER_EDWIN}/.config/nvim $h:/home/edwin.chen/.config
+        exe rsync -avptP /home/${USER_EDWIN}/.local/bin   $h:/home/edwin.chen/.local
+        exe rsync -avptP /home/${USER_EDWIN}/.local/share $h:/home/edwin.chen/.local
     done
 }
 
@@ -492,6 +499,10 @@ function scph {
   sync /home/${USER_EDWIN}/.uncrustify    $1
   sync /home/${USER_EDWIN}/.vimrc         $1
   sync /home/${USER_EDWIN}/.vim           $1
+  sync /home/${USER_EDWIN}/.local/bin     $1
+  sync /home/${USER_EDWIN}/.local/share   $1
+  sync /home/${USER_EDWIN}/.local/share/bob   $1
+  sync /home/${USER_EDWIN}/.claude.json   $1
   sync /home/${USER_EDWIN}/bin            $1
 }
 

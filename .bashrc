@@ -54,6 +54,10 @@ export ONE_TICK_CONFIG=/opt/1tick/one_tick_config.txt
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
+[ -f ~/.secrets ] && source ~/.secrets
+
+export SNAP_ROOT_DIR=~/snap
+export XR_MONOREPO_ROOT=${SNAP_ROOT_DIR}/ext/monorepo
 
 #include <cstdio>
 #PATH
@@ -212,3 +216,12 @@ PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
 if [ -d ~/hacks/nerdfont ]; then
     (cd ~/hacks/nerdfont; nohup python3 server.py > /dev/null 2> /dev/null & )
 fi
+
+# xrkb
+export XRKB_BASE="/home/edwin.chen/xrkb"
+
+# proxy for lsbl hosts
+if [[ "$(hostname)" == *lsbl* ]]; then
+    export HTTPS_PROXY="http://msp-242:8888"
+fi
+

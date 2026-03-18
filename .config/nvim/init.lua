@@ -4,8 +4,8 @@ vim.o.autowriteall = true -- save bufferes before invoking make
 vim.o.autoread = true -- watch for file changes
 vim.o.backspace = "indent,eol,start"
 vim.o.clipboard = "unnamedplus"
-vim.o.completeopt = "menu,menuone,noselect"
-vim.o.pumwidth = 40
+vim.o.completeopt = "menu,menuone,noselect,preview"
+vim.o.cursorline = true -- highlight the current line
 vim.o.diffopt = "filler,iwhite"
 vim.o.errorbells = true
 vim.o.expandtab = true
@@ -28,9 +28,11 @@ vim.o.smartindent = true
 vim.o.startofline = false -- leave cursor position alone
 vim.o.tabstop = 4
 vim.o.termguicolors = true
+vim.o.undodir = os.getenv('HOME') .. '/.vim/undodir' -- directory for undo files
 vim.o.visualbell = true -- visual flash instead of audible beep for error
 vim.o.wildignore = "*.a,*.dll,*.exe,*.so,*.swp,*.o,*/bin/*,__pycache__,*/.git/*" -- ignore these when searching over wildcard files
 vim.o.wildmenu = true -- menu has tab completion
+vim.opt.wildoptions = "fuzzy" -- fuzzy matching for the command line (the : menu)
 vim.o.winborder = "rounded"
 vim.o.wrap = true -- soft wrap long lines
 
@@ -44,8 +46,6 @@ vim.opt.path="/usr/include/**"
 if vim.env.TRADER_REPO_DIR ~= nil then
   vim.opt.path:append("," .. vim.env.TRADER_REPO_DIR  .. "/**")
 end
-
-
 
 local function setup_plugins(plugins)
     vim.pack.add(plugins)
@@ -62,12 +62,12 @@ setup_plugins({
         src = "https://github.com/tpope/vim-fugitive",
         config = function()
             -- all git shortcuts start with 'g'
-            vim.keymap.set("n", "<leader>gg", ":Git<CR>") -- Open git status in interative window (similar to lazygit)
-            vim.keymap.set("n", "<leader>gc", ":Git commit | startinsert<CR>") -- Open commit window (creates commit after writing and saving commit msg)
-            vim.keymap.set("n", "<leader>gl", ":silent! Glog<CR>")
-            vim.keymap.set("n", "<leader>gm", ":Git mergetool<CR>")
-            vim.keymap.set("n", "<leader>g|", ":Gvdiffsplit<CR>")
-            vim.keymap.set("n", "<leader>g-", ":Gdiffsplit<CR>")
+            vim.keymap.set("n", "<leader>gg", ":Git<CR>", { desc = "Git status interactive window" })
+            vim.keymap.set("n", "<leader>gc", ":Git commit | startinsert<CR>", { desc = "Git commit" })
+            vim.keymap.set("n", "<leader>gl", ":silent! Glog<CR>", { desc = "Git log" })
+            vim.keymap.set("n", "<leader>gm", ":Git mergetool<CR>", { desc = "Git mergetool" })
+            vim.keymap.set("n", "<leader>g|", ":Gvdiffsplit<CR>", { desc = "Git vertical diff split" })
+            vim.keymap.set("n", "<leader>g-", ":Gdiffsplit<CR>", { desc = "Git horizontal diff split" })
             vim.keymap.set("n", "<leader>gd", "<CMD>Gvdiffsplit master<CR>", { desc = "Differences against what is in git master" })
             vim.keymap.set("n", "<leader>gs", function() require("telescope.builtin").git_status() end, { desc = "Git status with preview" })
         end,
@@ -102,7 +102,21 @@ setup_plugins({
     {
         src = "https://github.com/nvim-lualine/lualine.nvim", -- status line
         config = function()
-            require("lualine").setup()
+            require("lualine").setup({
+                sections = {
+                    lualine_c = { {
+                        function()
+                            local path = vim.fn.expand("%:p")
+                            local max = math.floor(vim.o.columns * 0.4)
+                            if #path > max then
+                                return "…" .. path:sub(#path - max + 2)
+                            end
+                            return path
+                        end,
+                    } },
+                    lualine_x = { "claudecode" , "encoding", "fileformat", "filetype" },
+                },
+            })
         end,
     },
     { src = "https://github.com/nvim-lua/plenary.nvim" },
@@ -238,6 +252,11 @@ setup_plugins({
                 sources = {
                     default = { "lsp", "path", "buffer" },
                 },
+                fuzzy = {
+                    prebuilt_binaries = {
+                        force_version = "v1.9.1",
+                    },
+                },
             })
         end,
     },
@@ -249,12 +268,21 @@ setup_plugins({
     },
     { src = "https://github.com/stevearc/dressing.nvim" },
     {
+        src = "https://github.com/m00qek/baleia.nvim",
+        config = function()
+            local baleia = require("baleia").setup()
+            vim.api.nvim_create_user_command("Ansi", function()
+                baleia.once(vim.api.nvim_get_current_buf())
+            end, { desc = "Colorize ANSI escape sequences in current buffer" })
+        end,
+    },
+    {
         src = "https://github.com/coder/claudecode.nvim",
         config = function()
             require("claudecode").setup({
                 terminal_cmd = "/home/edwin.chen/.local/bin/claude --dangerously-skip-permissions",
                 terminal = {
-                    split_side = "bottom",
+                    split_side = "right",
                     cwd_provider = function(ctx)
                         -- Prefer repo root; fallback to file's directory
                         local cwd = require("claudecode.cwd").git_root(ctx.file_dir or ctx.cwd)
@@ -380,6 +408,7 @@ setup_plugins({
             vim.keymap.set("n", "<leader>dB", function()
                 dap.set_breakpoint(vim.fn.input("Condition: "))
             end, { desc = "Conditional Breakpoint" })
+            vim.keymap.set("n", "<leader>di", dap.pause, { desc = "Pause/Interrupt" })
             vim.keymap.set("n", "<leader>dp", function()
                 dap.set_breakpoint(nil, nil, vim.fn.input("Log message: "))
             end, { desc = "Logpoint" })
@@ -441,11 +470,10 @@ vim.keymap.set("n", "<leader>e", ":/error:<CR>", { desc = "Find next error in cu
 vim.keymap.set("v", "<leader>f", "zo", { desc = "Fold toggle (expand if collapsed)" })
 vim.keymap.set("n", "<leader>-", "<CMD>split<CR><C-w>w", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>f", "za", { desc = "Fold collapse" })
-vim.keymap.set("n", "<leader>lc", function() require("telescope.builtin").lsp_workspace_symbols({ symbols = "class" }) end, { desc = "Search workspace classes" })
-vim.keymap.set("n", "<leader>lf", vim.lsp.buf.format, { desc = "Beautify current file" })
-vim.keymap.set("n", "<leader>ls", function() require("telescope.builtin").lsp_workspace_symbols() end, { desc = "Search workspace symbols" })
-vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
-vim.keymap.set("n", "<leader>tf", function()
+vim.keymap.set("n", "<leader>lb", vim.lsp.buf.format, { desc = "Beautify current file" })
+vim.keymap.set("n", "<leader>lf", function() require("telescope.builtin").lsp_dynamic_workspace_symbols({ symbols = { "class", "method", "function" }, symbol_width = 100, symbol_type_width = 12, path_display = { "truncate" } }) end, { desc = "Search workspace methods and functions" })
+vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "Rename symbol" })
+vim.keymap.set("n", "<leader>fw", function()
     local word = vim.fn.expand("<cword>")
     vim.fn.setreg("/", "\\<" .. word .. "\\>")
     vim.o.hlsearch = true
@@ -455,36 +483,93 @@ vim.keymap.set("n", "<leader>tf", function()
         end
     end)
 end, { desc = "Grep current word recursively from prompted path" })
-vim.keymap.set("n", "<leader>mm", "<CMD>wall!<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildm.sh<CR> <CMD>copen<CR>", { desc = "Make monorepo" })
-vim.keymap.set("n", "<leader>ms", "<CMD>wall!<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/builds.sh<CR> <CMD>copen<CR>", { desc = "Make snap" })
-vim.keymap.set("n", "<leader>mt", "<CMD>wall!<CR> <CMD>cexpr []<CR> <CMD>NeomakeSh! ~/bin/buildt.sh<CR> <CMD>copen<CR>", { desc = "Make trader-repo" })
+local build_job_id = nil
+local build_efm = table.concat({
+    "%f:%l:%c: %t%*[^:]: %m",
+    "%f:%l: %t%*[^:]: %m",
+    "%f:%l:%c: %m",
+    "%f:%l: %m",
+    "%+G%.%#",
+}, ",")
+
+local function run_build(script, outfile)
+    if build_job_id then vim.fn.jobstop(build_job_id) end
+    vim.g.last_build_output = outfile
+    vim.cmd("wall!")
+    vim.fn.setqflist({}, "r")
+    vim.cmd("copen")
+
+    local function process(data)
+        if not data then return end
+        local items = vim.fn.getqflist({ lines = data, efm = build_efm }).items
+        if #items > 0 then vim.fn.setqflist(items, "a") end
+    end
+
+    build_job_id = vim.fn.jobstart(vim.fn.expand("~/bin/") .. script, {
+        stdout_buffered = false,
+        stderr_buffered = false,
+        on_stdout = function(_, data) process(data) end,
+        on_stderr = function(_, data) process(data) end,
+        on_exit = function()
+            build_job_id = nil
+            -- Final pass: re-parse the full output file for accuracy
+            local f = io.open(outfile, "r")
+            if not f then return end
+            local lines = {}
+            for line in f:lines() do table.insert(lines, line) end
+            f:close()
+            vim.schedule(function()
+                vim.fn.setqflist({}, "r", { lines = lines, efm = build_efm })
+            end)
+        end,
+    })
+end
+
+vim.keymap.set("i", "<RightMouse>", '<C-r>+', { desc = "Paste from clipboard" })
+
+vim.keymap.set("n", "<C-/>", "gcc", { remap = true, silent = true, desc = "Toggle comment" })
+vim.keymap.set("n", "<C-_>", "gcc", { remap = true, silent = true, desc = "Toggle comment" })
+vim.keymap.set("n", "<RightMouse>", '"+p', { desc = "Paste from clipboard" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>cd", '<cmd>lua vim.fn.chdir(vim.fn.expand("%:p:h"))<CR>')
+vim.keymap.set("n", "<leader>T", "<CMD>vsplit term://bash<CR>i", { desc = "Open terminal in vertical split and insert mode" })
+vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit" })
+vim.keymap.set("n", "<leader>r", function() require("telescope.builtin").oldfiles() end, { desc = "Recently opened files with preview" })
+vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
+vim.keymap.set("n", "<leader>w", "<CMD>wall!<CR>", { desc = "Write all" })
+vim.keymap.set("n", "<leader>|", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
+vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end, { desc = "Go to definition" })
+vim.keymap.set("n", "<leader>mm", function() run_build("buildm.sh", "/tmp/outm") end, { desc = "Make monorepo" })
+vim.keymap.set("n", "<leader>ms", function() run_build("builds.sh", "/tmp/outs") end, { desc = "Make snap" })
+vim.keymap.set("n", "<leader>mt", function() run_build("buildt.sh", "/tmp/outt") end, { desc = "Make trader-repo" })
 vim.keymap.set("n", "<leader>mq", function() require("telescope.builtin").quickfix() end, { desc = "Browse build errors with preview" })
-vim.keymap.set("n", "<leader>mx", "<CMD>wall!<CR> <CMD>cexpr []<CR> <CMD>NeomakeCancelJobs<CR>", { desc = "Stop make jobs" })
+vim.keymap.set("n", "<leader>mx", function()
+    if build_job_id then vim.fn.jobstop(build_job_id); build_job_id = nil end
+    vim.cmd("wall!")
+    vim.fn.setqflist({}, "r")
+end, { desc = "Stop make jobs" })
 vim.keymap.set("n", "<leader>n", "<CMD>edit $MYVIMRC<CR>", { desc = "Edit nvim's init.lua" })
 vim.keymap.set("n", "<leader>N", "<CMD>update<CR> :source $MYVIMRC<CR>", { desc = "Re-read nvim's init.lua" })
 vim.keymap.set("n", "<leader>o", function()
+    local seen = {}
     local dirs = {}
     for _, dir in ipairs(vim.opt.path:get()) do
         dir = dir:gsub("%*%*$", ""):gsub("/$", "")
-        if dir ~= "" and dir ~= "." then
+        if dir ~= "" and dir ~= "." and not seen[dir] then
+            seen[dir] = true
             table.insert(dirs, dir)
         end
     end
     require("telescope.builtin").find_files({ search_dirs = dirs })
 end, { desc = "Find and open file across path dirs" })
-vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit" })
-vim.keymap.set("n", "<leader>r", function() require("telescope.builtin").oldfiles() end, { desc = "Recently opened files with preview" })
-vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
-vim.keymap.set("n", "<leader>T", "<CMD>vsplit term://bash<CR>i", { desc = "Open terminal in vertical split and insert mode" })
-vim.keymap.set("n", "<leader>w", "<CMD>wall!<CR>", { desc = "Write all" })
-vim.keymap.set("n", "<leader>|", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
+
 vim.keymap.set("t", "<C-Space>", "<C-\\><C-n><C-W>p", { desc = "Switch out of terminal or CClaude terminal" })
-vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end, { desc = "Go to definition" })
-vim.keymap.set("i", "<RightMouse>", '<C-r>+')
-vim.keymap.set("v", "<RightMouse>", '"+p')
-vim.keymap.set("n", "<RightMouse>", '"+p')
+vim.keymap.set("t", "<ESC>", "<C-\\><C-n>", { desc = "Escape out of terminal mode" })
+
+vim.keymap.set("v", "<C-/>", "gc",  { remap = true, silent = true, desc = "Toggle comment" })
+vim.keymap.set("v", "<C-_>", "gc",  { remap = true, silent = true, desc = "Toggle comment" })
+vim.keymap.set("v", "<RightMouse>", '"+p', { desc = "Paste from clipboard" })
 
 vim.api.nvim_create_user_command("LspStatus", function()
     for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
@@ -545,7 +630,7 @@ vim.api.nvim_create_autocmd("FileType", { -- make gf in quickfix open file in pr
                     vim.cmd("normal! zz")
                 end)
             end
-        end, { buffer = true })
+        end, { buffer = true, desc = "Open file under cursor" })
         vim.keymap.set("n", "gF", function()
             local file, lnum = parse_file_and_line()
             if file == "" then return end
@@ -557,7 +642,7 @@ vim.api.nvim_create_autocmd("FileType", { -- make gf in quickfix open file in pr
                     vim.cmd("normal! zz")
                 end)
             end
-        end, { buffer = true })
+        end, { buffer = true, desc = "Open file under cursor in previous window" })
     end,
 })
 
@@ -578,26 +663,6 @@ vim.api.nvim_create_autocmd("FileType", { -- auto-scroll quickfix to bottom as n
     end,
 })
 
-vim.api.nvim_create_autocmd("User", { -- reload full build output into quickfix after Neomake finishes
-    pattern = "NeomakeFinished",
-    callback = function()
-        local f = io.open("/tmp/outt", "r")
-        if not f then return end
-        local lines = {}
-        for line in f:lines() do
-            table.insert(lines, line)
-        end
-        f:close()
-        local efm = table.concat({
-            "%f:%l:%c: %t%*[^:]: %m",
-            "%f:%l: %t%*[^:]: %m",
-            "%f:%l:%c: %m",
-            "%f:%l: %m",
-            "%+G%.%#",
-        }, ",")
-        vim.fn.setqflist({}, "r", { lines = lines, efm = efm })
-    end,
-})
 
 vim.api.nvim_create_autocmd("BufWritePre", { -- trim trailing whitespace prior to saving
     pattern = { "*" },

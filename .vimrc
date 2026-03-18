@@ -77,8 +77,7 @@ set number                    " line Numbers on gutter
 "set paste noai                " don't autoindent while pasting from clipboard
 set path=.,**
 set path+=/usr/include/**
-set path+=/lhome/snap/ext/**
-"set path+=$SNAP_ROOT_DIR/ext/monorepo/dist/relwithdebinfo/include/**
+set path+=$SNAP_ROOT_DIR/ext/monorepo/dist/relwithdebinfo/include/**
 set path+=$SNAP_ROOT_DIR/xr-snap/src/xr/snap/**
 "set path+=$SNAP_ROOT_DIR/ext/**
 set path+=$TRADER_REPO_DIR/**
@@ -249,6 +248,12 @@ let g:indent_guides_auto_colors = 0
 let g:indent_guides_enable_on_vim_startup = 1
 autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=gray5 " ctermbg=gray5
 autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=black " ctermbg=black
+
+let g:claude_api_key = 'your_api_key_here'
+nnoremap <leader>af :ClaudeChat<CR>
+nnoremap <leader>ax :ClaudeCancel<CR>
+let g:claude_map_send_chat_message = "<C-]>"
+Plug 'pasky/claude.vim'
 
 Plug 'yegappan/mru'
 nnoremap <S-m> :MRU<CR>
