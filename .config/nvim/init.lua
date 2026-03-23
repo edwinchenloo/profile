@@ -266,6 +266,14 @@ setup_plugins({
             require("custom-theme").setup()
         end,
     },
+    { src = "https://github.com/sphamba/smear-cursor.nvim",
+        config = function()
+            require("smear_cursor").setup({
+                stiffness = 0.8,
+                trailing_stiffness = 0.5
+            })
+        end,
+    },
     { src = "https://github.com/stevearc/dressing.nvim" },
     {
         src = "https://github.com/m00qek/baleia.nvim",
@@ -532,7 +540,11 @@ vim.keymap.set("n", "<C-_>", "gcc", { remap = true, silent = true, desc = "Toggl
 vim.keymap.set("n", "<RightMouse>", '"+p', { desc = "Paste from clipboard" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>cd", '<cmd>lua vim.fn.chdir(vim.fn.expand("%:p:h"))<CR>')
+vim.keymap.set("n", "<leader>cd", function()
+  local dir = vim.fn.expand("%:p:h")
+  vim.fn.chdir(dir)
+  vim.notify("cd " .. dir)
+end, { desc = "Change to current file's directory" })
 vim.keymap.set("n", "<leader>T", "<CMD>vsplit term://bash<CR>i", { desc = "Open terminal in vertical split and insert mode" })
 vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit" })
 vim.keymap.set("n", "<leader>r", function() require("telescope.builtin").oldfiles() end, { desc = "Recently opened files with preview" })
