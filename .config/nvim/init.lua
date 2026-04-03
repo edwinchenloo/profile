@@ -29,6 +29,7 @@ vim.o.startofline = false -- leave cursor position alone
 vim.o.tabstop = 4
 vim.o.termguicolors = true
 vim.o.undodir = os.getenv('HOME') .. '/.vim/undodir' -- directory for undo files
+vim.o.undofile = true -- persist undo history across sessions
 vim.o.visualbell = true -- visual flash instead of audible beep for error
 vim.o.wildignore = "*.a,*.dll,*.exe,*.so,*.swp,*.o,*/bin/*,__pycache__,*/.git/*" -- ignore these when searching over wildcard files
 vim.o.wildmenu = true -- menu has tab completion
@@ -36,15 +37,30 @@ vim.opt.wildoptions = "fuzzy" -- fuzzy matching for the command line (the : menu
 vim.o.winborder = "rounded"
 vim.o.wrap = true -- soft wrap long lines
 
+-- Bootstrap highlight to avoid ibl ColorScheme errors before config runs
+-- Also clears any stale ibl autocmds from previous :source runs.
+local ibl_bootstrap = vim.api.nvim_create_augroup("IndentBlankline", { clear = true })
+vim.api.nvim_set_hl(0, "IndentBlankline", { link = "NonText" })
+vim.api.nvim_create_autocmd("ColorScheme", {
+    group = ibl_bootstrap,
+    callback = function()
+        vim.api.nvim_set_hl(0, "IndentBlankline", { link = "NonText" })
+    end,
+})
+
 -- path for 'gf' to work
 vim.opt.path="/usr/include/**"
-.. "," .. vim.env.XR_MONOREPO_ROOT
-.. "," .. vim.env.XR_MONOREPO_ROOT .. "/cpp/libs/**"
-.. "," .. vim.env.XR_MONOREPO_ROOT .. "/cpp/apps/**"
-.. "," .. vim.env.SNAP_ROOT_DIR    .. "/xr-snap/src/xr/snap/**"
-.. "," .. vim.env.SNAP_ROOT_DIR    .. "/ext"
-if vim.env.TRADER_REPO_DIR ~= nil then
-  vim.opt.path:append("," .. vim.env.TRADER_REPO_DIR  .. "/**")
+if vim.env.XR_MONOREPO_ROOT then
+  vim.opt.path:append(vim.env.XR_MONOREPO_ROOT)
+  vim.opt.path:append(vim.env.XR_MONOREPO_ROOT .. "/cpp/libs/**")
+  vim.opt.path:append(vim.env.XR_MONOREPO_ROOT .. "/cpp/apps/**")
+end
+if vim.env.SNAP_ROOT_DIR then
+  vim.opt.path:append(vim.env.SNAP_ROOT_DIR .. "/xr-snap/src/xr/snap/**")
+  vim.opt.path:append(vim.env.SNAP_ROOT_DIR .. "/ext")
+end
+if vim.env.TRADER_REPO_DIR then
+  vim.opt.path:append(vim.env.TRADER_REPO_DIR .. "/**")
 end
 
 local function setup_plugins(plugins)
@@ -92,9 +108,7 @@ setup_plugins({
     {
         src = "https://github.com/williamboman/mason.nvim", -- load all lsp, formatting, linters
         config = function()
-            require("mason").setup({
-                ensure_installed = { "clangd", "pylsp", "pyright", "rust_analyzer" },
-            })
+            require("mason").setup()
         end,
     },
     { src = "https://github.com/neomake/neomake" }, -- run build commands asynchronously
@@ -208,10 +222,42 @@ setup_plugins({
     {
         src = "https://github.com/lukas-reineke/indent-blankline.nvim", -- highlight indentation levels
         config = function()
+            -- Slightly darker indent guides based on Tokyonight palette
+            local hooks = require("ibl.hooks")
+            -- Clear old hooks on :source to avoid stale callbacks
+            hooks.clear_all()
+            hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+                -- Derive indent color from current theme highlights
+                local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+                local nontext = vim.api.nvim_get_hl(0, { name = "NonText" })
+                local fg = normal.fg or nontext.fg
+                local bg = normal.bg or 0x000000
+
+                local function blend(bg_hex, fg_hex, alpha)
+                    local function chan(x, shift)
+                        return bit.band(bit.rshift(x, shift), 0xff)
+                    end
+                    local r = math.floor((chan(bg_hex, 16) * (1 - alpha)) + (chan(fg_hex, 16) * alpha) + 0.5)
+                    local g = math.floor((chan(bg_hex, 8) * (1 - alpha)) + (chan(fg_hex, 8) * alpha) + 0.5)
+                    local b = math.floor((chan(bg_hex, 0) * (1 - alpha)) + (chan(fg_hex, 0) * alpha) + 0.5)
+                    return string.format("#%02x%02x%02x", r, g, b)
+                end
+
+                if fg then
+                    -- Subtle shaded indent columns (no guide lines)
+                    local indent_bg_1 = blend(bg, fg, 0.03)
+                    local indent_bg_2 = blend(bg, fg, 0.05)
+                    vim.api.nvim_set_hl(0, "IblIndent1", { bg = indent_bg_1 })
+                    vim.api.nvim_set_hl(0, "IblIndent2", { bg = indent_bg_2 })
+                    vim.api.nvim_set_hl(0, "IblWhitespace", { bg = indent_bg_1 })
+                    -- Backward-compat highlight name to satisfy any defaults
+                    vim.api.nvim_set_hl(0, "IndentBlankline", { bg = indent_bg_1 })
+                end
+            end)
             require("ibl").setup({
-                indent = { highlight = { "CursorColumn", "Whitespace" }, char = "" },
+                indent = { highlight = { "IblIndent1", "IblIndent2" }, char = "" },
                 whitespace = {
-                    highlight = { "CursorColumn", "Whitespace" },
+                    highlight = { "IblIndent1", "IblIndent2" },
                     remove_blankline_trail = false,
                 },
                 scope = { enabled = false },
@@ -222,9 +268,9 @@ setup_plugins({
         src = "https://github.com/nvim-treesitter/nvim-treesitter",
         config = function()
             require("nvim-treesitter").setup({
-                ensure_installed = { "c", "cpp", "html", "json", "python", "rust" },
-                highlight = { enable = "true" },
-                rainbow = { enable = "true", extended_mode = "true" },
+                ensure_installed = { "c", "cpp", "html", "json", "lua", "python", "rust" },
+                highlight = { enable = true },
+                rainbow = { enable = true, extended_mode = true },
                 folding = { enabled = true },
                 --sync_install     = false, -- only needed at first setup
                 --auto_install     = true,
@@ -253,9 +299,7 @@ setup_plugins({
                     default = { "lsp", "path", "buffer" },
                 },
                 fuzzy = {
-                    prebuilt_binaries = {
-                        force_version = "v1.9.1",
-                    },
+                    implementation = "lua",
                 },
             })
         end,
@@ -276,12 +320,85 @@ setup_plugins({
     },
     { src = "https://github.com/stevearc/dressing.nvim" },
     {
+        src = "https://github.com/MeanderingProgrammer/render-markdown.nvim",
+        config = function()
+            require("render-markdown").setup({
+                file_types = { "markdown" },
+            })
+        end,
+    },
+    {
         src = "https://github.com/m00qek/baleia.nvim",
         config = function()
             local baleia = require("baleia").setup()
             vim.api.nvim_create_user_command("Ansi", function()
                 baleia.once(vim.api.nvim_get_current_buf())
             end, { desc = "Colorize ANSI escape sequences in current buffer" })
+        end,
+    },
+    {
+        src = "https://github.com/xTacobaco/cursor-agent.nvim",
+        config = function()
+            require("cursor-agent").setup({
+                cmd = "cursor-agent",
+                args = { "--model", "gpt-5.2-codex" },
+            })
+
+            local ca = require("cursor-agent")
+            local util = require("cursor-agent.util")
+            local cfg_mod = require("cursor-agent.config")
+
+            -- Override toggle_terminal to use a vertical split instead of a float
+            ca._term_state = ca._term_state or { win = nil, bufnr = nil, job_id = nil }
+
+            ca.toggle_terminal = function()
+                local st = ca._term_state
+
+                if st.win and vim.api.nvim_win_is_valid(st.win) then
+                    vim.api.nvim_win_close(st.win, true)
+                    st.win = nil
+                    return
+                end
+
+                local function job_is_alive(jid)
+                    if not jid or jid == 0 then return false end
+                    local ok, res = pcall(vim.fn.jobwait, { jid }, 0)
+                    return ok and type(res) == "table" and res[1] == -1
+                end
+
+                if st.bufnr and vim.api.nvim_buf_is_valid(st.bufnr) and job_is_alive(st.job_id) then
+                    vim.cmd("botright vsplit")
+                    vim.api.nvim_win_set_buf(0, st.bufnr)
+                    st.win = vim.api.nvim_get_current_win()
+                    vim.cmd("startinsert")
+                    return
+                end
+
+                local cfg = cfg_mod.get()
+                local argv = util.concat_argv(util.to_argv(cfg.cmd), cfg.args)
+                local root = util.get_project_root()
+
+                vim.cmd("botright vsplit")
+                st.win = vim.api.nvim_get_current_win()
+                st.bufnr = vim.api.nvim_create_buf(false, true)
+                vim.api.nvim_buf_set_option(st.bufnr, "bufhidden", "hide")
+                vim.api.nvim_win_set_buf(st.win, st.bufnr)
+
+                st.job_id = vim.fn.termopen(argv, {
+                    cwd = root,
+                    on_exit = function(_, code)
+                        if ca._term_state then ca._term_state.job_id = nil end
+                        if code ~= 0 then
+                            util.notify(("cursor-agent exited with code %d"):format(code), vim.log.levels.WARN)
+                        end
+                    end,
+                })
+                vim.cmd("startinsert")
+            end
+
+            vim.keymap.set("n", "<leader>ag", function() ca.toggle_terminal() end, { desc = "Cursor Agent: toggle" })
+            vim.keymap.set("v", "<leader>ag", ":CursorAgentSelection<CR>", { desc = "Cursor Agent: send selection" })
+            vim.keymap.set("n", "<leader>aG", "<cmd>CursorAgentBuffer<CR>", { desc = "Cursor Agent: send buffer" })
         end,
     },
     {
@@ -301,18 +418,34 @@ setup_plugins({
                 },
             })
 
-            -- All AI shortcuts start with 'a'
-            vim.keymap.set("n", "<Leader>aa", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude Diff" })
-            vim.keymap.set("n", "<Leader>ad", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
-            vim.keymap.set("n", "<Leader>af", function()
+            -- Claude shortcuts: <leader>ac*
+            vim.keymap.set("n", "<Leader>ac", function()
                 local focused = pcall(vim.cmd, "ClaudeCodeFocus")
                 if not focused then
                     vim.cmd("ClaudeCode --resume")
                 end
             end, { desc = "Focus/Resume Claude" })
-            vim.keymap.set("n", "<Leader>am", "<cmd>ClaudeCodeSelectModel<CR>", { desc = "Select Claude" })
+            vim.keymap.set("n", "<Leader>aca", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude Diff" })
+            vim.keymap.set("n", "<Leader>acd", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
+            vim.keymap.set("n", "<Leader>acm", "<cmd>ClaudeCodeSelectModel<CR>", { desc = "Select Claude model" })
         end,
     },
+    --{
+    --    src = "https://github.com/carlos-algms/agentic.nvim.git",
+    --    config = function()
+    --        require("agentic").setup({
+    --            acp_providers = {
+    --                ["claude-agent-acp"] = {
+    --                    default_mode = "bypassPermissions", -- Automatically switch to this mode when a new session starts
+    --                },
+    --            }
+    --        })
+    --
+    --        vim.keymap.set("n", "<leader>0", function()
+    --            require("agentic").new_session()
+    --        end, { desc = "Agentic restore session" })
+    --    end,
+    --},
     { src = "https://github.com/nvim-neotest/nvim-nio" }, -- async IO library (required by nvim-dap-ui)
     {
         src = "https://github.com/mfussenegger/nvim-dap",
@@ -463,9 +596,11 @@ setup_plugins({
             local function dap_eval()
                 if require("dap").session() then
                     dapui.eval()
+                else
+                    vim.lsp.buf.hover()
                 end
             end
-            vim.keymap.set({"n", "v"}, "K", dap_eval, { desc = "Eval variable under cursor" })
+            vim.keymap.set({"n", "v"}, "K", dap_eval, { desc = "DAP eval / LSP hover" })
             vim.keymap.set({"n", "v"}, "<leader>dh", dap_eval, { desc = "Eval variable under cursor" })
         end,
     },
@@ -577,7 +712,7 @@ vim.keymap.set("n", "<leader>o", function()
 end, { desc = "Find and open file across path dirs" })
 
 vim.keymap.set("t", "<C-Space>", "<C-\\><C-n><C-W>p", { desc = "Switch out of terminal or CClaude terminal" })
-vim.keymap.set("t", "<ESC>", "<C-\\><C-n>", { desc = "Escape out of terminal mode" })
+--vim.keymap.set("t", "<ESC>", "<C-\\><C-n>", { desc = "Escape out of terminal mode" })
 
 vim.keymap.set("v", "<C-/>", "gc",  { remap = true, silent = true, desc = "Toggle comment" })
 vim.keymap.set("v", "<C-_>", "gc",  { remap = true, silent = true, desc = "Toggle comment" })

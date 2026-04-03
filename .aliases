@@ -51,6 +51,7 @@ alias ldpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias lessf='/usr/bin/less +F '
 alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias proxy='nohup /home/${USER_EDWIN}/.local/bin/tinyproxy -c ~/.config/tinyproxy/tinyproxy.conf > /dev/null 2>&1 &'
+alias vim='VIMRUNTIME= /usr/bin/vim'
 
 # eza (better `ls`)
 # ------------------------------------------------------------------------------
@@ -461,12 +462,14 @@ function _scp() {
 function scpb() {
     _scp /home/${USER_EDWIN}/.aliases
     _scp /home/${USER_EDWIN}/.bashrc
+    _scp /home/${USER_EDWIN}/.bash_profile
     _scp /home/${USER_EDWIN}/.profile
     _scp /home/${USER_EDWIN}/.prompt
 }
 
 function scpv() {
     _scp /home/${USER_EDWIN}/.claude
+    _scp /home/${USER_EDWIN}/.config/cursor
     _scp /home/${USER_EDWIN}/.config/nvim
     _scp /home/${USER_EDWIN}/.local/bin
     _scp /home/${USER_EDWIN}/.local/share
@@ -474,7 +477,7 @@ function scpv() {
     _scp /home/${USER_EDWIN}/.vimrc
 }
 
-function scp {
+function scpall {
     _scp /home/${USER_EDWIN}/.ssh
     _scp /home/${USER_EDWIN}/.aliases
     _scp /home/${USER_EDWIN}/.bashrc
@@ -500,6 +503,34 @@ function scp {
     _scp /home/${USER_EDWIN}/.local/share/bob
     _scp /home/${USER_EDWIN}/.claude.json
     _scp /home/${USER_EDWIN}/bin
+}
+
+function syncall {
+    sync /home/${USER_EDWIN}/.ssh             $1
+    sync /home/${USER_EDWIN}/.aliases         $1
+    sync /home/${USER_EDWIN}/.bashrc          $1
+    sync /home/${USER_EDWIN}/.bin             $1
+    sync /home/${USER_EDWIN}/.cargo           $1
+    sync /home/${USER_EDWIN}/.cgdb            $1
+    sync /home/${USER_EDWIN}/.claude          $1
+    sync /home/${USER_EDWIN}/.config/nvim     $1
+    sync /home/${USER_EDWIN}/.dir_colors      $1
+    sync /home/${USER_EDWIN}/.gdb             $1
+    sync /home/${USER_EDWIN}/.gdbinit         $1
+    sync /home/${USER_EDWIN}/.gitconfig       $1
+    sync /home/${USER_EDWIN}/.git-prompt.sh   $1
+    sync /home/${USER_EDWIN}/.profile         $1
+    sync /home/${USER_EDWIN}/.prompt          $1
+    sync /home/${USER_EDWIN}/.screenrc        $1
+    sync /home/${USER_EDWIN}/.secrets         $1
+    sync /home/${USER_EDWIN}/.uncrustify      $1
+    sync /home/${USER_EDWIN}/.vimrc           $1
+    sync /home/${USER_EDWIN}/.vim             $1
+    sync /home/${USER_EDWIN}/.local/bin       $1
+    sync /home/${USER_EDWIN}/.local/share     $1
+    sync /home/${USER_EDWIN}/.local/share/bob $1
+    sync /home/${USER_EDWIN}/.claude.json     $1
+    sync /home/${USER_EDWIN}/bin              $1
 }
 
 function scpssh() {
