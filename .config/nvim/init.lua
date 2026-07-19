@@ -4,6 +4,24 @@ vim.o.autowriteall = true -- save bufferes before invoking make
 vim.o.autoread = true -- watch for file changes
 vim.o.backspace = "indent,eol,start"
 vim.o.clipboard = "unnamedplus"
+
+-- OSC 52: route yank through the terminal emulator over SSH when no
+-- native clipboard helper is available. Requires Neovim 0.10+.
+-- Paste reads from Neovim's unnamed register because most terminals refuse
+-- the OSC 52 read for security and the request would hang. To paste from the
+-- local system clipboard, use the terminal's own paste (Shift+Insert,
+-- Ctrl+Shift+V, right-click) — bracketed paste handles indentation.
+if vim.env.SSH_TTY and vim.fn.executable("xclip") == 0 and vim.fn.executable("wl-copy") == 0 then
+    local osc52 = require("vim.ui.clipboard.osc52")
+    local function paste_from_unnamed()
+        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+    end
+    vim.g.clipboard = {
+        name = "OSC 52",
+        copy  = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+        paste = { ["+"] = paste_from_unnamed, ["*"] = paste_from_unnamed },
+    }
+end
 vim.o.completeopt = "menu,menuone,noselect,preview"
 vim.o.cursorline = true -- highlight the current line
 vim.o.diffopt = "filler,iwhite"
@@ -425,9 +443,92 @@ setup_plugins({
                     vim.cmd("ClaudeCode --resume")
                 end
             end, { desc = "Focus/Resume Claude" })
-            vim.keymap.set("n", "<Leader>aca", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude Diff" })
-            vim.keymap.set("n", "<Leader>acd", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
-            vim.keymap.set("n", "<Leader>acm", "<cmd>ClaudeCodeSelectModel<CR>", { desc = "Select Claude model" })
+
+            -- Insert text into the Claude prompt without submitting it. Sends the
+            -- string straight to the terminal job's stdin (Claude's TUI shows it in
+            -- the input box). No trailing newline, so you can keep typing/editing.
+            local function send_to_claude_prompt(text)
+                local term = require("claudecode.terminal")
+                term.ensure_visible() -- create/show the terminal if it isn't already
+                local bufnr = term.get_active_terminal_bufnr()
+                if not bufnr then
+                    vim.notify("No active Claude terminal", vim.log.levels.WARN)
+                    return
+                end
+                local chan = vim.b[bufnr].terminal_job_id
+                if not chan then
+                    vim.notify("Claude terminal has no job channel", vim.log.levels.WARN)
+                    return
+                end
+                vim.fn.chansend(chan, text)
+                local win = vim.fn.bufwinid(bufnr)
+                if win ~= -1 then
+                    vim.api.nvim_set_current_win(win)
+                    vim.cmd("startinsert")
+                end
+            end
+
+            -- Visual mode: send the highlighted selection (with file + line range)
+            -- to Claude as an at-mention reference.
+            vim.keymap.set("v", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
+
+            -- Normal mode: send the current buffer's full path to the Claude prompt.
+            vim.keymap.set("n", "<Leader>af", function()
+                local path = vim.fn.expand("%:p")
+                if path == "" then
+                    vim.notify("Current buffer has no file path", vim.log.levels.WARN)
+                    return
+                end
+                send_to_claude_prompt(path .. " ")
+            end, { desc = "Send current file path to Claude prompt" })
+
+            -- Track the most-recently-active real file buffer. We can't use the
+            -- alternate-buffer register (#) for this: # is per-window, and the
+            -- Claude terminal window's alternate file is frozen to whatever was
+            -- showing when the terminal first loaded — switching buffers in other
+            -- windows never updates it. So record it ourselves on every BufEnter.
+            local last_file_group = vim.api.nvim_create_augroup("ClaudeLastFile", { clear = true })
+            vim.api.nvim_create_autocmd("BufEnter", {
+                group = last_file_group,
+                callback = function(ev)
+                    if vim.bo[ev.buf].buftype == "" then
+                        local name = vim.api.nvim_buf_get_name(ev.buf)
+                        if name ~= "" then
+                            vim.g.claude_last_file = name
+                        end
+                    end
+                end,
+            })
+
+            -- Terminal mode: while typing in the Claude window, insert the path of
+            -- the most-recently-active file buffer into the prompt.
+            vim.keymap.set("t", "<C-f>", function()
+                local path = vim.g.claude_last_file
+                if not path or path == "" then
+                    return
+                end
+                local chan = vim.b.terminal_job_id
+                if chan then
+                    vim.fn.chansend(chan, path .. " ")
+                end
+            end, { desc = "Insert previous file path into Claude prompt" })
+
+            -- Window-move shortcuts scoped to the Claude terminal only (so they
+            -- don't shadow bash's Ctrl-R history search in regular terminals).
+            -- Escape to Normal mode, move the window, then resume terminal insert.
+            local claude_term_keys = vim.api.nvim_create_augroup("ClaudeTermKeys", { clear = true })
+            vim.api.nvim_create_autocmd("TermOpen", {
+                group = claude_term_keys,
+                callback = function(ev)
+                    if not vim.api.nvim_buf_get_name(ev.buf):lower():find("claude") then
+                        return
+                    end
+                    vim.keymap.set("t", "<C-b>", [[<C-\><C-n><C-w>Ji]],
+                        { buffer = ev.buf, silent = true, desc = "Claude: move window to bottom" })
+                    vim.keymap.set("t", "<C-r>", [[<C-\><C-n><C-w>Li]],
+                        { buffer = ev.buf, silent = true, desc = "Claude: move window to right" })
+                end,
+            })
         end,
     },
     --{
@@ -635,10 +736,23 @@ local build_efm = table.concat({
     "%+G%.%#",
 }, ",")
 
+-- Write only real, named, modified file buffers. A bare `:wall` aborts with
+-- E141 on a modified no-name buffer and would also try to save terminal buffers.
+local function save_all_files()
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(b)
+            and vim.bo[b].modified
+            and vim.bo[b].buftype == ""
+            and vim.api.nvim_buf_get_name(b) ~= "" then
+            vim.api.nvim_buf_call(b, function() vim.cmd("silent write") end)
+        end
+    end
+end
+
 local function run_build(script, outfile)
     if build_job_id then vim.fn.jobstop(build_job_id) end
     vim.g.last_build_output = outfile
-    vim.cmd("wall!")
+    save_all_files()
     vim.fn.setqflist({}, "r")
     vim.cmd("copen")
 
@@ -681,10 +795,10 @@ vim.keymap.set("n", "<leader>cd", function()
   vim.notify("cd " .. dir)
 end, { desc = "Change to current file's directory" })
 vim.keymap.set("n", "<leader>T", "<CMD>vsplit term://bash<CR>i", { desc = "Open terminal in vertical split and insert mode" })
-vim.keymap.set("n", "<leader>q", "<CMD>wqall!<CR>", { desc = "Write all and quit" })
+vim.keymap.set("n", "<leader>q", function() save_all_files(); vim.cmd("qall!") end, { desc = "Write all and quit" })
 vim.keymap.set("n", "<leader>r", function() require("telescope.builtin").oldfiles() end, { desc = "Recently opened files with preview" })
 vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open terminal in horizontal split and insert mode" })
-vim.keymap.set("n", "<leader>w", "<CMD>wall!<CR>", { desc = "Write all" })
+vim.keymap.set("n", "<leader>w", save_all_files, { desc = "Write all" })
 vim.keymap.set("n", "<leader>|", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
 vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end, { desc = "Go to definition" })
 vim.keymap.set("n", "<leader>mm", function() run_build("buildm.sh", "/tmp/outm") end, { desc = "Make monorepo" })
@@ -712,6 +826,9 @@ vim.keymap.set("n", "<leader>o", function()
 end, { desc = "Find and open file across path dirs" })
 
 vim.keymap.set("t", "<C-Space>", "<C-\\><C-n><C-W>p", { desc = "Switch out of terminal or CClaude terminal" })
+-- Enter Normal mode WITHOUT leaving the window, so you can scroll the terminal's
+-- scrollback (e.g. Claude output): <C-q> then <C-u>/<C-b>/gg/etc, press i to resume.
+vim.keymap.set("t", "<C-q>", "<C-\\><C-n>", { desc = "Terminal: Normal mode (scroll in place)" })
 --vim.keymap.set("t", "<ESC>", "<C-\\><C-n>", { desc = "Escape out of terminal mode" })
 
 vim.keymap.set("v", "<C-/>", "gc",  { remap = true, silent = true, desc = "Toggle comment" })

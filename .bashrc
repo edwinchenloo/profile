@@ -209,8 +209,8 @@ PERL5LIB="/home/edwin.chen/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PER
 PERL_LOCAL_LIB_ROOT="/home/edwin.chen/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/edwin.chen/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
-. "/home/edwin.chen/.local/share/bob/env/env.sh"
-. "$HOME/.cargo/env"
+. "/home/${USER_EDWIN}/.local/share/bob/env/env.sh"
+. "/home/${USER_EDWIN}/.cargo/env"
 
 # make the nerdfont available to the chromebook terminal
 if [ -d ~/hacks/nerdfont ]; then

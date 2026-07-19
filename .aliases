@@ -237,7 +237,7 @@ function gc()
     fi
 
     COMMENT="$1"
-    [[ "${COMMENT}" == \"*\" || "${COMMENT}" == \'*\' ]] && COMMENT="${$1:1:-1}"
+    [[ "${COMMENT}" == \"*\" || "${COMMENT}" == \'*\' ]] && COMMENT="${COMMENT:1:-1}"
     git commit -a -m "$BRANCH:$COMMENT"
     if [ $BRANCH == "master" ]; then
         echo "***** Warning:commited to master *****" >&2
@@ -350,10 +350,55 @@ function mergemaster()
         return
     fi
 
-    _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git merge -m ${BRANCH}:merge_with_master master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout master";                                echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git pull --rebase";                                  echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git checkout ${BRANCH}";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c=(git merge -m "${BRANCH}: merge with master" master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+}
+
+function rebasemaster()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot rebase master onto itself"
+        return
+    fi
+
+    _c="git fetch origin";         echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git rebase origin/master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+}
+
+function syncmaster()
+{
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
+    then
+        echo "cannot sync master with itself"
+        return
+    fi
+
+    _c="git fetch origin"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+
+    _c="git rebase origin/master"; echo $_c; $_c
+    if [[ $? -eq 0 ]]; then
+        echo -e "rebase succeeded\n"
+        _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+        return
+    fi
+
+    GITDIR=$(git rev-parse --git-dir)
+    if [ -d "$GITDIR/rebase-merge" ] || [ -d "$GITDIR/rebase-apply" ]
+    then
+        echo -e "\nrebase had conflicts, aborting and falling back to merge\n"
+        _c="git rebase --abort"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+        _c=(git merge -m "${BRANCH}: merge with master" origin/master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+        _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    else
+        echo "rebase failed for a non-conflict reason; not falling back"
+        return
+    fi
 }
 
 function mms()
@@ -368,7 +413,7 @@ function mms()
     _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git merge -m ${BRANCH}:merge_with_master master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c=(git merge -m "${BRANCH}: merge with master" master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="cd ${XR_MONOREPO_ROOT}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
     _c="cd -";                                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
@@ -441,10 +486,10 @@ function sync() {
     exe rsync -avptP --delete-excluded $1 "$2:$(dirname $1)"
 }
 
-export xrhosts=("chi-555" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-101" "tx1-118" "tx1-268" "tx1-269" "tx1-412" "tx1-535" "tx1-551" "tx1-624" "tx1-655" "tx1-679" "tx1-688" "tx1-706" )
+export xrhosts=("chi-555" "ny5-014" "ny5-021" "ny5-047" "ny5-057" "ny5-059" "ny5-100" "ny5-101" "ny5-216" "tx1-118" "tx1-268" "tx1-269" "tx1-412" "tx1-514" "tx1-515" "tx1-535" "tx1-551" "tx1-624" "tx1-655" "tx1-679" "tx1-688" "tx1-706" )
 
 function findfhc() {
-    hs=( "aur-lsbp141" "aur-lsbp188" "aur-lsbp189" "aur-lsbp190" "aur-lsbp193" "car-lsbp002" "car-lsbp007" "car-lsbp033" "car-lsbp059" "chi-lsbp368" "chi-lsbp555" "mah-lsbp007" "msp-lsbp074" "msp-lsbp089" "ny5-lsbp014" "ny5-lsbp023" "ny5-lsbp037" "ny5-lsbp038" "ny5-lsbp039" "ny5-lsbp040" "ny5-lsbp047" "ny5-lsbp057" "ny5-lsbp059" "ny5-lsbp100" "ny5-lsbp101" "ny5-lsbp133" "ny5-lsbp134" "ny5-lsbp142" "tx1-lsbp077" "tx1-lsbl118" "tx1-lsbl268" "tx1-lsbl269" "tx1-lsbp412" "tx1-lsbp535" "tx1-lsbp551" "tx1-lsbp624" "tx1-lsbl655" "tx1-lsbp679" "tx1-lsbp688" "tx1-lsbp706" )
+    hs=( "aur-lsbp141" "aur-lsbp188" "aur-lsbp189" "aur-lsbp190" "aur-lsbp193" "car-lsbp002" "car-lsbp007" "car-lsbp033" "car-lsbp059" "chi-lsbp368" "chi-lsbp555" "mah-lsbp007" "msp-lsbp074" "msp-lsbp089" "ny5-lsbp014" "ny5-lsbp023" "ny5-lsbp037" "ny5-lsbp038" "ny5-lsbp039" "ny5-lsbp040" "ny5-lsbp047" "ny5-lsbp057" "ny5-lsbp059" "ny5-lsbp100" "ny5-lsbp101" "ny5-lsbp133" "ny5-lsbp134" "ny5-lsbp142" "tx1-lsbp077" "tx1-lsbl118" "tx1-lsbl268" "tx1-lsbl269" "tx1-lsbp412"  "tx1-lsbp535" "tx1-lsbp551" "tx1-lsbp624" "tx1-lsbl655" "tx1-lsbp679" "tx1-lsbp688" "tx1-lsbp706" )
     for h in "${hs[@]}"
     do
        echo $h
@@ -506,30 +551,32 @@ function scpall {
 }
 
 function syncall {
-    sync /home/${USER_EDWIN}/.ssh             $1
     sync /home/${USER_EDWIN}/.aliases         $1
     sync /home/${USER_EDWIN}/.bashrc          $1
     sync /home/${USER_EDWIN}/.bin             $1
     sync /home/${USER_EDWIN}/.cargo           $1
     sync /home/${USER_EDWIN}/.cgdb            $1
     sync /home/${USER_EDWIN}/.claude          $1
+    sync /home/${USER_EDWIN}/.claude.json     $1
+    sync /home/${USER_EDWIN}/.config/cursor   $1
     sync /home/${USER_EDWIN}/.config/nvim     $1
     sync /home/${USER_EDWIN}/.dir_colors      $1
     sync /home/${USER_EDWIN}/.gdb             $1
     sync /home/${USER_EDWIN}/.gdbinit         $1
-    sync /home/${USER_EDWIN}/.gitconfig       $1
     sync /home/${USER_EDWIN}/.git-prompt.sh   $1
+    sync /home/${USER_EDWIN}/.gitconfig       $1
+    sync /home/${USER_EDWIN}/.local/bin       $1
+    sync /home/${USER_EDWIN}/.local/share     $1
+    sync /home/${USER_EDWIN}/.local/share     $1
+    sync /home/${USER_EDWIN}/.local/share/bob $1
     sync /home/${USER_EDWIN}/.profile         $1
     sync /home/${USER_EDWIN}/.prompt          $1
     sync /home/${USER_EDWIN}/.screenrc        $1
     sync /home/${USER_EDWIN}/.secrets         $1
+    sync /home/${USER_EDWIN}/.ssh             $1
     sync /home/${USER_EDWIN}/.uncrustify      $1
-    sync /home/${USER_EDWIN}/.vimrc           $1
     sync /home/${USER_EDWIN}/.vim             $1
-    sync /home/${USER_EDWIN}/.local/bin       $1
-    sync /home/${USER_EDWIN}/.local/share     $1
-    sync /home/${USER_EDWIN}/.local/share/bob $1
-    sync /home/${USER_EDWIN}/.claude.json     $1
+    sync /home/${USER_EDWIN}/.vimrc           $1
     sync /home/${USER_EDWIN}/bin              $1
 }
 
