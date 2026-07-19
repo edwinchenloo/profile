@@ -67,6 +67,8 @@ pathedit -p ~${USER_EDWIN}/bin/nvim-linux64/bin
 pathedit -p ~${USER_EDWIN}/bin
 if [ -f /opt/nvim-linux64/bin/nvim ]; then
   pathedit -p /opt/nvim-linux64/bin
+elif [ -f /home/${USER_EDWIN}/.local/share/bob/v0.12.1/bin/nvim ]; then
+  pathedit -p /home/${USER_EDWIN}/.local/share/bob/v0.12.1/bin/nvim
 fi
 pathedit -p '.'
 
@@ -209,8 +211,8 @@ PERL5LIB="/home/edwin.chen/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PER
 PERL_LOCAL_LIB_ROOT="/home/edwin.chen/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/edwin.chen/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/edwin.chen/perl5"; export PERL_MM_OPT;
-. "/home/${USER_EDWIN}/.local/share/bob/env/env.sh"
-. "/home/${USER_EDWIN}/.cargo/env"
+. /home/${USER_EDWIN}/.local/share/bob/env/env.sh
+. /home/${USER_EDWIN}/.cargo/env
 
 # make the nerdfont available to the chromebook terminal
 if [ -d ~/hacks/nerdfont ]; then
@@ -225,3 +227,7 @@ if [[ "$(hostname)" == *lsbl* ]]; then
     export HTTPS_PROXY="http://msp-242:8888"
 fi
 
+
+
+# Added by Antigravity CLI installer
+export PATH=/home/${USER_EDWIN}/.local/bin:$PATH

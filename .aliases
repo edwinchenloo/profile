@@ -280,7 +280,7 @@ function ii()   # Get current host related info.
 
 function l()
 {
-  exa -alhmF --git --group-directories-first  --color-scale $1
+  eza -alhmF --git --group-directories-first  --color-scale $1
   p=`realpath ${1:-.}`
   echo -e "`realpath $p/..`/\e$BBlue`basename $p`\e$Color_Off"
 }
@@ -460,6 +460,9 @@ pathedit()
     esac
     PATH=$(printf "$PATH" | tr -s :) PATH=${PATH#:} PATH=${PATH%:}
 }
+pathedit -a /home/edwinchenloo/.cargo/bin
+pathedit -a /home/edwinchenloo/.local/share/bob/v0.12.1/bin
+
 
 function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
 
