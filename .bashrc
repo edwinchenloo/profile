@@ -72,6 +72,11 @@ elif [ -f /home/${USER_EDWIN}/.local/share/bob/v0.12.1/bin/nvim ]; then
 fi
 pathedit -p '.'
 
+# Garmin Connect IQ SDK (monkeyc / monkeydo / connectiq)
+if [ -f "$HOME/.Garmin/ConnectIQ/current-sdk.cfg" ]; then
+  pathedit -p "$(cat "$HOME/.Garmin/ConnectIQ/current-sdk.cfg")bin"
+fi
+
 # Set Putty to use utf-8 characters as well.  This fixes weird gcc weird characters when printing errors export LANG=en_US.utf-8
 
 export LESS='-R -Q'

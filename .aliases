@@ -53,27 +53,8 @@ alias lpyconnect='~/bin/pyconnect -R 19305:localhost:22 echen@10.9.174.122'
 alias proxy='nohup /home/${USER_EDWIN}/.local/bin/tinyproxy -c ~/.config/tinyproxy/tinyproxy.conf > /dev/null 2>&1 &'
 alias vim='VIMRUNTIME= /usr/bin/vim'
 
-# eza (better `ls`)
-# ------------------------------------------------------------------------------
-if type eza &>/dev/null; then
-  alias l="eza --icons=always"
-  alias la="eza -a --icons=always"
-  alias lh="eza -ad --icons=always .*"
-  alias ll="eza -lg --icons=always"
-  alias lla="eza -lag --icons=always"
-  alias llh="eza -lagd --icons=always .*"
-  alias ls="eza --icons=always"
-  alias lt2="eza -lTg --level=2 --icons=always"
-  alias lt3="eza -lTg --level=3 --icons=always"
-  alias lt4="eza -lTg --level=4 --icons=always"
-  alias lt="eza -lTg --icons=always"
-  alias lta2="eza -lTag --level=2 --icons=always"
-  alias lta3="eza -lTag --level=3 --icons=always"
-  alias lta4="eza -lTag --level=4 --icons=always"
-  alias lta="eza -lTag --icons=always"
-else
-  alias ls='/bin/ls --color=auto '
-fi
+# eza / ls / ll aliases are defined together with the terminal-colour setup
+# further down (search: "ls / ll — prefer eza").
 
 #alias make=~/bin/pretty_make.py
 alias mamba='. /shared/mamba/profile/mmm.sh'
@@ -138,23 +119,42 @@ alias xrmake='python3 -m xrmake'
 # Aliases are available on non interactive shells
 shopt -s expand_aliases
 
-if [ "$OS" = "Windows_NT" ]
-then
-    alias ll='ls -l -tr --color=always --full-time'
-    alias llt='ls -l -tr --color=always --full-time'
-    #export TERM=xterm
-elif [ -e /lib/terminfo/x/xterm-256color ] ||
-     [ -e /usr/share/terminfo/x/xterm-256color ]
+# --- Terminal colour setup (dircolors + 256-colour TERM) ----------------------
+if [ "$OS" != "Windows_NT" ] &&
+   { [ -e /lib/terminfo/x/xterm-256color ] || [ -e /usr/share/terminfo/x/xterm-256color ]; }
 then
     eval `dircolors /home/${USER_EDWIN}/.dir_colors`
-
     alias grep='/bin/grep --color=tty '
-    alias ll='ls -l -tr --full-time'
-    alias llt='ls -l -tr --full-time'
-
     export TERM='xterm-256color'
+fi
+
+# --- ls / ll — prefer eza (icons + colour); else colour-aware coreutils ls ----
+if type eza &>/dev/null; then
+    alias l="eza --icons=always"
+    alias la="eza -a --icons=always"
+    alias lh="eza -ad --icons=always .*"
+    alias ls="eza --icons=always"
+    alias ll="eza -lg --time-style=full-iso --icons=always"
+    alias lla="eza -lag --icons=always"
+    alias llh="eza -lagd --icons=always .*"
+    alias llt="eza -lg --sort=modified --time-style=full-iso --icons=always"
+    alias lt="eza -lTg --icons=always"
+    alias lt2="eza -lTg --level=2 --icons=always"
+    alias lt3="eza -lTg --level=3 --icons=always"
+    alias lt4="eza -lTg --level=4 --icons=always"
+    alias lta="eza -lTag --icons=always"
+    alias lta2="eza -lTag --level=2 --icons=always"
+    alias lta3="eza -lTag --level=3 --icons=always"
+    alias lta4="eza -lTag --level=4 --icons=always"
 else
-    alias ll='ls -l -tr --full-time'
+    alias ls='/bin/ls --color=auto '
+    if [ "$OS" = "Windows_NT" ]; then
+        alias ll='ls -l -tr --color=always --full-time'
+        alias llt='ls -l -tr --color=always --full-time'
+    else
+        alias ll='ls -l -tr --color=auto --full-time'
+        alias llt='ls -l -tr --color=auto --full-time'
+    fi
 fi
 
 _exe()
