@@ -91,6 +91,16 @@ local function setup_plugins(plugins)
     end
 end
 
+-- Build hooks for plugins with a native component. Must be registered before
+-- vim.pack.add() so it also fires on first install.
+vim.api.nvim_create_autocmd("PackChanged", {
+    callback = function(ev)
+        if ev.data.spec.name == "telescope-fzf-native.nvim" and (ev.data.kind == "install" or ev.data.kind == "update") then
+            vim.system({ "make" }, { cwd = ev.data.path }):wait() -- synchronous: load_extension needs the library
+        end
+    end,
+})
+
 setup_plugins({
     {
         src = "https://github.com/tpope/vim-fugitive",
@@ -104,6 +114,26 @@ setup_plugins({
             vim.keymap.set("n", "<leader>g-", ":Gdiffsplit<CR>", { desc = "Git horizontal diff split" })
             vim.keymap.set("n", "<leader>gd", "<CMD>Gvdiffsplit master<CR>", { desc = "Differences against what is in git master" })
             vim.keymap.set("n", "<leader>gs", function() require("telescope.builtin").git_status() end, { desc = "Git status with preview" })
+        end,
+    },
+    {
+        -- Tabbed diff/merge review UI. Needs plenary + nvim-web-devicons, both
+        -- added below; config() runs in the second pass so ordering is fine.
+        src = "https://github.com/sindrets/diffview.nvim",
+        config = function()
+            require("diffview").setup({
+                enhanced_diff_hl = true,
+                view = {
+                    merge_tool = { layout = "diff3_mixed" },
+                },
+            })
+
+            -- git shortcuts continue under 'g'
+            vim.keymap.set("n", "<leader>gv", "<CMD>DiffviewOpen<CR>", { desc = "Diffview: working tree vs index" })
+            vim.keymap.set("n", "<leader>gV", "<CMD>DiffviewOpen master<CR>", { desc = "Diffview: against git master" })
+            vim.keymap.set("n", "<leader>gq", "<CMD>DiffviewClose<CR>", { desc = "Diffview: close" })
+            vim.keymap.set("n", "<leader>gh", "<CMD>DiffviewFileHistory %<CR>", { desc = "Diffview: current file history" })
+            vim.keymap.set("n", "<leader>gH", "<CMD>DiffviewFileHistory<CR>", { desc = "Diffview: repo history" })
         end,
     },
     {
@@ -174,6 +204,16 @@ setup_plugins({
             })
         end,
     },
+    -- Compiled C sorter for telescope: faster on large result sets, and enables fzf
+    -- match syntax ('exact, ^prefix, suffix$, !negate). Loaded after telescope.setup().
+    { src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim",
+        config = function()
+            local ok, err = pcall(require("telescope").load_extension, "fzf")
+            if not ok then
+                vim.notify("telescope-fzf-native not loaded (run :lua vim.pack.update() to rebuild): " .. tostring(err), vim.log.levels.WARN)
+            end
+        end,
+    },
     {
         src = "https://github.com/neovim/nvim-lspconfig", -- lsp configs
         config = function()
@@ -181,9 +221,15 @@ setup_plugins({
                 root_markers = { ".git" },
             })
 
+            -- No --compile-commands-dir on purpose. With it, EVERY clangd instance is pointed at the
+            -- monorepo database, so a snap buffer gets monorepo's flags and resolves nothing. Without
+            -- it, clangd searches upward from each file for compile_commands.json, and since Neovim
+            -- starts one client per root_dir, monorepo buffers get monorepo's db and snap buffers get
+            -- snap's -- both live in one nvim. The monorepo is nested at snap/ext/monorepo and
+            -- nearest-ancestor wins, so the nesting resolves the right way round.
             vim.lsp.config.clangd = {
-                cmd = { "clangd", "--background-index", "--compile-commands-dir=" .. vim.env.XR_MONOREPO_ROOT },
-                root_markers = { "compile_commands.json", "compile_flags.txt" },
+                cmd = { "clangd", "--background-index" },
+                root_markers = { "compile_commands.json", "compile_flags.txt", ".git" },
                 filetypes = { "c", "cpp" },
             }
 
@@ -801,6 +847,87 @@ vim.keymap.set("n", "<leader>t", "<CMD>split term://bash<CR>i", { desc = "Open t
 vim.keymap.set("n", "<leader>w", save_all_files, { desc = "Write all" })
 vim.keymap.set("n", "<leader>|", "<CMD>vsplit<CR><C-w>w", { desc = "Split vertically" })
 vim.keymap.set("n", "gd", function() require("telescope.builtin").lsp_definitions() end, { desc = "Go to definition" })
+-- Regenerate the clangd compile database for whichever repo the current buffer lives in, then
+-- restart that buffer's LSP client. The monorepo is nested INSIDE snap (snap/ext/monorepo), so the
+-- monorepo prefix must be tested first -- otherwise every monorepo file also looks like a snap file.
+local function compile_db_target()
+    local file = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p")
+    local function under(root)
+        return root and root ~= "" and file:sub(1, #root + 1) == root .. "/"
+    end
+    if under(vim.env.XR_MONOREPO_ROOT) then
+        return {
+            label = "monorepo",
+            dir = vim.env.XR_MONOREPO_ROOT,
+            cmd = { "bazel", "run", "//tools/compile_commands:refresh_compile_commands" },
+        }
+    end
+    if under(vim.env.SNAP_ROOT_DIR) then
+        return {
+            label = "snap",
+            dir = vim.env.SNAP_ROOT_DIR,
+            -- snap is autotools/xrmake2, NOT bazel, so there is no refresh target: bear intercepts
+            -- the compiler invocations instead. It only records what actually compiles, so an
+            -- incremental build yields a PARTIAL database -- clean first for full coverage.
+            cmd = { "bear", "--output", "compile_commands.json", "--",
+                    "python3", "-m", "xrmake2", "--fast", "--lto", "-v" },
+            slow = true,
+        }
+    end
+    return nil
+end
+
+local compile_db_job = nil
+vim.keymap.set("n", "<leader>lsp", function()
+    if compile_db_job then
+        vim.notify("compile_commands generation already running", vim.log.levels.WARN)
+        return
+    end
+    local t = compile_db_target()
+    if not t then
+        vim.notify("buffer is under neither XR_MONOREPO_ROOT nor SNAP_ROOT_DIR", vim.log.levels.ERROR)
+        return
+    end
+    if t.slow and vim.fn.confirm(
+            ("Regenerate %s compile_commands.json?\nThis runs a FULL %s build and can take a long time.")
+                :format(t.label, t.label), "&Yes\n&No", 2) ~= 1 then
+        return
+    end
+
+    local buf = vim.api.nvim_get_current_buf()
+    local tail = {}
+    local function keep(_, data)
+        if not data then return end
+        for _, line in ipairs(data) do
+            if line ~= "" then
+                tail[#tail + 1] = line
+                if #tail > 15 then table.remove(tail, 1) end
+            end
+        end
+    end
+
+    vim.notify(("[%s] %s"):format(t.label, table.concat(t.cmd, " ")))
+    compile_db_job = vim.fn.jobstart(t.cmd, {
+        cwd = t.dir,
+        on_stdout = keep,
+        on_stderr = keep,
+        on_exit = function(_, code)
+            compile_db_job = nil
+            vim.schedule(function()
+                if code ~= 0 then
+                    vim.notify(("[%s] compile_commands generation failed (exit %d)\n%s")
+                        :format(t.label, code, table.concat(tail, "\n")), vim.log.levels.ERROR)
+                    return
+                end
+                vim.notify(("[%s] compile_commands.json updated; restarting LSP"):format(t.label))
+                if vim.api.nvim_buf_is_valid(buf) then
+                    vim.api.nvim_buf_call(buf, function() vim.cmd("lsp restart") end)
+                end
+            end)
+        end,
+    })
+end, { desc = "Regenerate compile_commands.json for this buffer's repo, then restart LSP" })
+
 vim.keymap.set("n", "<leader>mm", function() run_build("buildm.sh", "/tmp/outm") end, { desc = "Make monorepo" })
 vim.keymap.set("n", "<leader>ms", function() run_build("builds.sh", "/tmp/outs") end, { desc = "Make snap" })
 vim.keymap.set("n", "<leader>mt", function() run_build("buildt.sh", "/tmp/outt") end, { desc = "Make trader-repo" })
@@ -822,7 +949,24 @@ vim.keymap.set("n", "<leader>o", function()
             table.insert(dirs, dir)
         end
     end
-    require("telescope.builtin").find_files({ search_dirs = dirs })
+    -- Telescope scans each search_dir separately and does not dedupe, so a dir nested
+    -- inside another would list every one of its files once per enclosing dir. Keep only
+    -- the outermost dirs: the set of files reachable is identical either way.
+    table.sort(dirs, function(a, b) return #a < #b end)
+    local roots = {}
+    for _, dir in ipairs(dirs) do
+        local nested = false
+        for _, root in ipairs(roots) do
+            if dir:sub(1, #root + 1) == root .. "/" then
+                nested = true
+                break
+            end
+        end
+        if not nested then
+            table.insert(roots, dir)
+        end
+    end
+    require("telescope.builtin").find_files({ search_dirs = roots })
 end, { desc = "Find and open file across path dirs" })
 
 vim.keymap.set("t", "<C-Space>", "<C-\\><C-n><C-W>p", { desc = "Switch out of terminal or CClaude terminal" })

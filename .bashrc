@@ -1,5 +1,17 @@
 # .bashrc
 
+# Proxy for lsbl (lab) hosts, which cannot reach prod hosts such as jenkins directly.
+# This sits ABOVE the interactive guard below on purpose: `ssh host cmd` runs a NON-interactive
+# bash, which returns at that guard, so anything after it never reaches ssh/scp/cron-style
+# invocations. $HOSTNAME is a bash builtin -- no fork, unlike $(hostname), which matters now
+# that this runs for every non-interactive shell.
+#
+# Only assignments belong above the guard: ANY output here corrupts scp/sftp/rsync, which
+# parse the remote shell's stdout. That is what the guard exists to prevent.
+if [[ "$HOSTNAME" == *lsbl* ]]; then
+    export HTTPS_PROXY="http://msp-242:8888"
+fi
+
 #if not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
@@ -232,7 +244,3 @@ if [[ "$(hostname)" == *lsbl* ]]; then
     export HTTPS_PROXY="http://msp-242:8888"
 fi
 
-
-
-# Added by Antigravity CLI installer
-export PATH=/home/${USER_EDWIN}/.local/bin:$PATH

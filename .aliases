@@ -27,6 +27,7 @@ alias clonetd="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strat
 alias clonet="git clone ssh://git@hq-stash.lnx.xrtrading.local:7999/strat/strategy2.git trader-repo"
 alias cmaked='cmake -DCMAKE_BUILD_TYPE=DEBUG ..'
 alias cmaker='cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO ..'
+alias csv2txt='column -s, -t '
 alias diff='colordiff'
 alias df='df -kTh'
 alias du='du -kh --max-depth=1'    # Makes a more readable output.
@@ -325,101 +326,231 @@ function llogs()
     fi
 }
 
-function mdds()   # merge development data services
+# Merge the latest base branch into the current branch. Use this for a SHARED branch, where
+# rewriting history (grebase) would disrupt collaborators. It MERGES (no history rewrite, no
+# force-push) the freshly-fetched origin/<base> DIRECTLY -- never a local branch, which can drift
+# from origin and drag in commits that aren't on it (that drift is what pollutes PRs). The base is
+# chosen/remembered exactly like grebase (arg once, else branch.<name>.grebaseBase, else master).
+# Push afterwards with a normal 'git push'.
+function grebaseshared()
 {
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
-    then
-        echo "cannot merge to master"
-        return
-    fi
+    local BRANCH base; BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ -z "$BRANCH" ] || [ "$BRANCH" == "HEAD" ]; then echo "not on a branch"; return 1; fi
+    base="$1"
+    if [ -n "$base" ]; then git config "branch.${BRANCH}.grebaseBase" "$base"; else base=$(git config "branch.${BRANCH}.grebaseBase"); fi
+    [ -z "$base" ] && base="master"
+    if [ "$BRANCH" == "$base" ]; then echo "cannot merge ${base} into itself"; return 1; fi
 
-    _c="git checkout development";                        echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git submodule update";                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git merge -m ${BRANCH}:merge_with_development development"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git fetch origin ${base}";                                echo $_c; $_c;               if ! [[ $? -eq 0 ]]; then echo Error $?; return 1; else echo -e "\n"; fi
+    _c=(git merge -m "${BRANCH}: merge with ${base}" FETCH_HEAD);  echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo "Merge stopped (conflicts?). Resolve, 'git add', then 'git commit'. Abort with 'git merge --abort'."; return 1; else echo -e "\n"; fi
 }
 
-function mergemaster()
+# Rebase the current branch onto the latest base branch and force-push. PERSONAL branches only:
+# clean, linear history (no merge commits) so the PR diff is exactly your commits. The base defaults
+# to 'master' but MAY be another integration branch the work is based off: pass it once
+# (e.g. 'grebase rel-2.0') and it is remembered per-branch (git config branch.<name>.grebaseBase);
+# later a plain 'grebase' reuses it. Rebases onto the just-fetched origin/<base> (FETCH_HEAD), never
+# a drift-prone local branch. Requires a clean working tree (no auto-stash): if you have uncommitted
+# changes git refuses and you commit/stash first. On conflict it stops so you resolve and keep
+# history linear. Do NOT use on a shared branch (see grebaseshared).
+#
+# NOT-MY-COMMITS SAFETY (two independent guards -- do not remove either):
+#  (1) Pre-flight. We fetch origin/<BRANCH> as well as the base, and refuse to run unless the current
+#      origin/<BRANCH> tip is something you HAVE HELD LOCALLY -- either an ancestor of HEAD, or an
+#      ancestor of one of this branch's recent reflog entries. The reflog leg is what makes a rewrite
+#      (your own earlier rebase, amend, or a conflict resolution that changed the content) still count
+#      as "seen", which a patch-id comparison cannot do once you edit the conflicted hunk.
+#  (2) Push. A bare '--force-with-lease' is NOT sufficient here: its "lease" is just the local
+#      remote-tracking ref refs/remotes/origin/<BRANCH>, and ANY intervening fetch that touches it
+#      (a plain 'git f' = fetch --append --prune, 'git pull', an IDE/prompt autofetch, ...) silently
+#      renews the lease to include a colleague's commits you never merged -- the push then "safely"
+#      deletes them. '--force-if-includes' closes that hole: it additionally requires that the remote
+#      tip was at some point in THIS branch's reflog, i.e. that you actually had it locally.
+# The window that makes this bite is exactly conflict resolution: the rebase stops, minutes pass,
+# a teammate pushes and/or something fetches, and the resumed push clobbers them.
+function grebase()
 {
+    local BRANCH base basesha expected seen r before after count
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
-    then
-        echo "cannot merge to master"
-        return
+    if [ -z "$BRANCH" ] || [ "$BRANCH" == "HEAD" ]; then echo "not on a branch"; return 1; fi
+    base="$1"
+    if [ -n "$base" ]; then git config "branch.${BRANCH}.grebaseBase" "$base"; else base=$(git config "branch.${BRANCH}.grebaseBase"); fi
+    [ -z "$base" ] && base="master"
+    if [ "$BRANCH" == "$base" ]; then echo "cannot rebase ${base} onto itself"; return 1; fi
+
+    _c="git fetch origin ${base}";                     echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return 1; else echo -e "\n"; fi
+    # Pin the rebase target now: a later fetch moves FETCH_HEAD, this sha cannot move.
+    basesha=$(git rev-parse FETCH_HEAD) || return 1
+
+    # Refresh origin/<BRANCH> so guard (1) sees reality (fetching the base alone never updates it).
+    # Tolerate failure: the branch may not exist on origin yet.
+    git fetch -q origin "+refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}" 2>/dev/null
+    expected=$(git rev-parse -q --verify "refs/remotes/origin/${BRANCH}")
+    if [ -n "$expected" ] && ! git merge-base --is-ancestor "$expected" HEAD 2>/dev/null; then
+        seen=""
+        for r in $(git rev-list -g "refs/heads/${BRANCH}" 2>/dev/null | head -200); do
+            if git merge-base --is-ancestor "$expected" "$r" 2>/dev/null; then seen=1; break; fi
+        done
+        if [ -z "$seen" ]; then
+            echo "REFUSING to rebase+force-push: origin/${BRANCH} is at a commit you have never had locally:"
+            git --no-pager log --oneline --no-decorate -5 "$expected" | sed 's/^/    /'
+            echo "Someone else has pushed to ${BRANCH}; force-pushing would DELETE their work."
+            echo "Integrate it first ('git pull --rebase'), or use 'grebaseshared' on shared branches."
+            return 1
+        fi
     fi
 
-    _c="git checkout master";                                echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git pull --rebase";                                  echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git checkout ${BRANCH}";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c=(git merge -m "${BRANCH}: merge with master" master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    _c="git rebase ${basesha}";                        echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo "Rebase stopped (conflicts, or a dirty working tree). Commit/stash or resolve, then 'git rebase --continue' -- or 'git rebase --abort'."; echo "When the rebase finishes, re-run 'grebase' to push -- do NOT push by hand; the re-run re-checks that nobody pushed to ${BRANCH} while you were resolving."; return 1; else echo -e "\n"; fi
+    before=$(git rev-parse --short "origin/${BRANCH}" 2>/dev/null || echo "(new branch)"); after=$(git rev-parse --short HEAD); count=$(git rev-list --count "${basesha}..HEAD" 2>/dev/null || echo "?")
+    echo "force-push origin/${BRANCH}: ${before} -> ${after}  (${count} commit(s) ahead of ${base})"
+    _c="git push --force-with-lease --force-if-includes origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; echo "If this says 'stale info' / 'remote ref updated since checkout', origin/${BRANCH} moved under you -- inspect 'git log HEAD..origin/${BRANCH}' before doing anything forceful."; return 1; else echo -e "\n"; fi
 }
 
-function rebasemaster()
+# _gsuper <base> -- shared engine for gsnap/gds: keep a superproject (snap, dataservices, ...) and
+# its ext/monorepo submodule in lockstep on a feature branch. Takes no user-facing arguments: it
+# always works on whatever branch the superproject is currently on. Run from the superproject while
+# on the feature branch. Steps:
+#   1. put ext/monorepo on the right commit. It is only ever in one of two states:
+#        - it has a <BRANCH> of its own (work not merged yet) -> checkout <BRANCH> + grebase, as before;
+#        - it is sitting on its base, or has no <BRANCH> at all (you already merged it to master)
+#          -> checkout the base and FAST-FORWARD it to origin/<base>. A base branch is never rebased
+#          and never force-pushed; if it will not fast-forward (you have local commits on master) we
+#          stop rather than guess.
+#   2. record that submodule sha on the superproject (git add ext/monorepo + commit, message
+#      '<BRANCH>: monorepo') -> clean tree.
+#   3. rebase the superproject onto its base and force-push. A superproject rebase conflicts on the
+#      ext/monorepo gitlink (git can't 3-way-merge divergent submodule pointers); we auto-resolve
+#      ONLY that path via 'git add ext/monorepo'. ANY real code conflict still stops for you.
+# Step 2 runs BEFORE the step-3 rebase on purpose (it keeps the rebase on a clean tree, so this works
+# whether or not you already pushed the new monorepo yourself). That is also why the flow still matches
+# "monorepo latest, then snap latest, then commit the bump": 'git add ext/monorepo' stages the sha the
+# submodule directory is ACTUALLY checked out at (the one step 1 just put there), so the recorded
+# pointer is the newest one either way -- including when the step-3 rebase hits a gitlink conflict and
+# auto-resolves it. Doing it in this order additionally keeps working when the gitlink is already
+# dirty on entry, which a rebase-first order could not (rebase refuses on an unstaged gitlink).
+# The superproject's base is fixed by the caller (master for gsnap, development for gds). The
+# monorepo's own base is resolved independently (branch.<name>.grebaseBase inside ext/monorepo, else
+# master) -- that config is grebase's, written when you last ran 'grebase <base>' in the monorepo.
+# Requires clean TRACKED files in both repos (no auto-stash; untracked files are fine; a dirty
+# submodule pointer is expected -- step 2 records it). Never changes your shell's cwd. If the step-3
+# rebase stops on a real code conflict: resolve, 'git rebase --continue' until done, then just re-run
+# gsnap -- do NOT push by hand with a bare '--force-with-lease' (see the safety note on grebase).
+function _gsuper()
 {
+    local BRANCH SUPER SUPERNAME base msg monobase monocur monosha rebased unmerged tries before after count superdirty monodirty QUIET
+    base="$1"
     BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
-    then
-        echo "cannot rebase master onto itself"
-        return
+    if [ -z "$BRANCH" ] || [ "$BRANCH" == "HEAD" ]; then echo "not on a branch"; return 1; fi
+    SUPER=$(git rev-parse --show-toplevel) || return 1
+    SUPERNAME="${SUPER##*/}"
+    if [ ! -e "$SUPER/ext/monorepo/.git" ]; then
+        echo "no ext/monorepo submodule under $SUPER (run from the superproject)"; return 1
     fi
 
-    _c="git fetch origin";         echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git rebase origin/master"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-}
+    if [ "$BRANCH" == "$base" ]; then echo "on the base branch (${base}); nothing to sync"; return 1; fi
+    # Single source of truth: the bump commit's subject. The re-assert below matches on it to decide
+    # amend-vs-new-commit, so these must never drift apart.
+    msg="${BRANCH}: monorepo"
 
-function syncmaster()
-{
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
-    then
-        echo "cannot sync master with itself"
-        return
+    # Pre-flight: no uncommitted changes to TRACKED files (can't stash away without autostash). Untracked
+    # files are ignored; a dirty submodule pointer is ignored superproject-side (step 2 records it).
+    superdirty=$(git -C "$SUPER" status --porcelain --untracked-files=no --ignore-submodules=all)
+    monodirty=$(git -C "$SUPER/ext/monorepo" status --porcelain --untracked-files=no)
+    if [ -n "$superdirty$monodirty" ]; then
+        echo "${SUPERNAME}: uncommitted changes to tracked files -- commit or stash first, then rerun."
+        if [ -n "$superdirty" ]; then echo "-- ${SUPERNAME} ($SUPER):"; echo "$superdirty"; fi
+        if [ -n "$monodirty" ]; then echo "-- ext/monorepo:"; echo "$monodirty"; fi
+        return 1
     fi
 
-    _c="git fetch origin"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-
-    _c="git rebase origin/master"; echo $_c; $_c
-    if [[ $? -eq 0 ]]; then
-        echo -e "rebase succeeded\n"
-        _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-        return
-    fi
-
-    GITDIR=$(git rev-parse --git-dir)
-    if [ -d "$GITDIR/rebase-merge" ] || [ -d "$GITDIR/rebase-apply" ]
-    then
-        echo -e "\nrebase had conflicts, aborting and falling back to merge\n"
-        _c="git rebase --abort"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-        _c=(git merge -m "${BRANCH}: merge with master" origin/master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-        _c="git push --force-with-lease origin ${BRANCH}"; echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    echo "== [1/3] ext/monorepo: put it on the latest of its branch =="
+    monobase=$(git -C "$SUPER/ext/monorepo" config "branch.${BRANCH}.grebaseBase")
+    [ -z "$monobase" ] && monobase="master"
+    monocur=$(git -C "$SUPER/ext/monorepo" rev-parse --abbrev-ref HEAD)
+    if [ "$monocur" == "$monobase" ] || ! git -C "$SUPER/ext/monorepo" show-ref --quiet --verify "refs/heads/${BRANCH}"; then
+        # No unmerged feature work in the monorepo -> track the base. --ff-only: never rewrite a base branch.
+        if [ "$monocur" == "$monobase" ]; then echo "  already on ${monobase} -- fast-forwarding it to origin/${monobase}"
+        else echo "  no ${BRANCH} branch here -- switching to ${monobase} and fast-forwarding it to origin/${monobase}"; fi
+        ( cd "$SUPER/ext/monorepo" && git checkout "$monobase" && git fetch origin "$monobase" && git merge --ff-only FETCH_HEAD ) \
+            || { echo "ext/monorepo: cannot fast-forward ${monobase} (local commits on it?); fix in ext/monorepo, then rerun"; return 1; }
     else
-        echo "rebase failed for a non-conflict reason; not falling back"
-        return
-    fi
-}
-
-function mms()
-{
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ $BRANCH == "master" ] || [ $BRANCH == "" ]
-    then
-        echo "cannot merge to master"
-        return
+        echo "  has ${BRANCH} -- checkout ${BRANCH}, rebase onto its base, push"
+        ( cd "$SUPER/ext/monorepo" && git checkout "$BRANCH" && grebase ) \
+            || { echo "ext/monorepo update failed; fix in ext/monorepo, then rerun"; return 1; }
     fi
 
-    _c="git checkout master";                             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git pull --rebase";                               echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c=(git merge -m "${BRANCH}: merge with master" master); echo "${_c[*]}"; "${_c[@]}"; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="cd ${XR_MONOREPO_ROOT}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git checkout ${BRANCH}";                          echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="cd -";                                            echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git add ${XR_MONOREPO_ROOT}";                     echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
-    _c="git commit -a -m ${BRANCH}:monorepo";             echo $_c; $_c; if ! [[ $? -eq 0 ]]; then echo Error $?; return; else echo -e "\n"; fi
+    # The sha step 1 landed on. From here it is THE answer: every gitlink decision below forces it.
+    monosha=$(git -C "$SUPER/ext/monorepo" rev-parse HEAD) || return 1
+
+    echo "== [2/3] ${SUPERNAME}: record the ext/monorepo sha (so the tree is clean for the rebase) =="
+    git -C "$SUPER" add ext/monorepo
+    if git -C "$SUPER" diff --cached --quiet -- ext/monorepo; then
+        echo "  ext/monorepo sha unchanged; nothing to commit"
+    else
+        git -C "$SUPER" commit -m "$msg" || return 1
+        echo "  committed submodule bump"
+    fi
+
+    echo "== [3/3] ${SUPERNAME}: rebase ${BRANCH} onto ${base} (auto-resolving ext/monorepo gitlink) and push =="
+    git -C "$SUPER" fetch origin "${base}" || { echo "${SUPERNAME} fetch failed"; return 1; }
+    # Scope the submodule/merge-conflict advice hints off for the automated rebase (we print our own
+    # progress); your interactive git still shows those hints when they're useful.
+    QUIET="-c advice.submoduleMergeConflict=false -c advice.mergeConflict=false"
+    tries=0
+    git -C "$SUPER" $QUIET rebase FETCH_HEAD
+    while [ $? -ne 0 ]; do
+        tries=$((tries + 1))
+        if [ "$tries" -gt 100 ]; then echo "too many rebase steps; bailing"; return 1; fi
+        unmerged=$(git -C "$SUPER" diff --name-only --diff-filter=U)
+        if [ "$unmerged" != "ext/monorepo" ]; then
+            echo "${SUPERNAME} rebase stopped on conflicts you must resolve manually:"
+            echo "${unmerged:-<no unmerged paths; rebase failed for another reason>}"
+            echo "Resolve, 'git add', 'git rebase --continue' until done, then re-run '${FUNCNAME[1]:-gsnap}'"
+            echo "(or push with 'git push --force-with-lease --force-if-includes' -- a bare --force-with-lease can clobber a teammate; see grebase)."
+            return 1
+        fi
+        echo "  auto-resolving ext/monorepo gitlink -> our sha ${monosha:0:12}"
+        git -C "$SUPER" update-index --cacheinfo "160000,${monosha},ext/monorepo" || return 1
+        if git -C "$SUPER" diff --cached --quiet; then
+            GIT_EDITOR=true git -C "$SUPER" $QUIET rebase --skip        # commit became empty after resolve
+        else
+            GIT_EDITOR=true git -C "$SUPER" $QUIET rebase --continue    # keep the commit + its message
+        fi
+    done
+
+    # OUR MONOREPO SHA WINS. ${base} may have moved ext/monorepo to a different sha than we did. The
+    # rebase can land that either way and not always via a conflict we see: git resolves a gitlink
+    # silently when one side is an ancestor of the other, so ${base}'s sha can quietly outrank ours.
+    # Re-assert ours unconditionally, so the result depends on step 1 and not on how a 3-way merge went.
+    rebased=$(git -C "$SUPER" rev-parse "HEAD:ext/monorepo" 2>/dev/null)
+    if [ "$rebased" != "$monosha" ]; then
+        if ! git -C "$SUPER/ext/monorepo" merge-base --is-ancestor "$rebased" "$monosha" 2>/dev/null; then
+            echo "  WARNING: ${base} has ext/monorepo at ${rebased:0:12}, which is NOT an ancestor of yours"
+            echo "           (${monosha:0:12}) -- taking yours, so ${base}'s submodule move is dropped here."
+            echo "           If that is wrong, update ext/monorepo and rerun."
+        fi
+        echo "  ext/monorepo after rebase was ${rebased:0:12}; forcing ours ${monosha:0:12}"
+        git -C "$SUPER" update-index --cacheinfo "160000,${monosha},ext/monorepo" || return 1
+        if [ "$(git -C "$SUPER" log -1 --format=%s)" == "$msg" ]; then
+            git -C "$SUPER" commit -q --amend --no-edit || return 1
+        else
+            git -C "$SUPER" commit -q -m "$msg" || return 1
+        fi
+    fi
+
+    before=$(git -C "$SUPER" rev-parse --short "origin/${BRANCH}" 2>/dev/null || echo "(new branch)"); after=$(git -C "$SUPER" rev-parse --short HEAD); count=$(git -C "$SUPER" rev-list --count "origin/${base}..HEAD" 2>/dev/null || echo "?")
+    echo "  force-push ${SUPERNAME} origin/${BRANCH}: ${before} -> ${after}  (${count} commit(s) ahead of ${base})"
+    # --force-if-includes: see the NOT-MY-COMMITS SAFETY note on grebase.
+    git -C "$SUPER" push --force-with-lease --force-if-includes origin "$BRANCH"
 }
+
+# gsnap -- sync the snap superproject + its ext/monorepo submodule onto master. No arguments: it
+# works on whatever branch snap is currently on.
+function gsnap() { _gsuper master; }
+
+# gds -- same for the dataservices superproject, onto 'development' (its integration branch). No
+# arguments. Replaces the old (buggy, merge-based) mdds.
+function gds() { _gsuper development; }
 
 function mydf()         # Pretty-print of 'df' output.
 {                       # Inspired by 'dfc' utility.
@@ -599,3 +730,21 @@ function u() {
 }
 
 
+
+# Resolve a false Bitbucket submodule-conflict on a PR branch by merging
+# master locally (git can fast-forward the submodule gitlink that Bitbucket
+# cannot) and pushing the result back.  Usage: gconflict <branch>
+function gconflict() {
+    if [ -z "$1" ]
+    then
+        echo "gconflict {branch}   # merge master into branch, resolve submodule conflict, push"
+        return 1
+    fi
+
+    local branch="$1"
+
+    git fetch origin "${branch}" master && \
+    git checkout -B "${branch}" "origin/${branch}" && \
+    git merge origin/master --no-edit && \
+    git push origin "${branch}"
+}
